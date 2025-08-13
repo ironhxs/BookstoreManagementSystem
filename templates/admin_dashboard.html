@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统管理员主页</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            min-height: 100vh;
+            background: url('/pic/background/系统管理员.jpg') no-repeat center center fixed;
+            background-size: cover;
+            position: relative;
+        }
+
+        .bg-mask {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.5);
+            z-index: 1;
+        }
+
+        .main-card {
+            position: relative;
+            z-index: 2;
+            max-width: 500px;
+            margin: 10vh auto;
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 1rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            padding: 2.5rem 2rem 2rem 2rem;
+        }
+
+        .main-title {
+            font-weight: bold;
+            color: #dc3545;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .nav-link {
+            font-weight: 500;
+        }
+
+        .list-group-item {
+            font-size: 1.1rem;
+        }
+
+        .dashboard-btn {
+            width: 100%;
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+            padding: 1rem 0;
+            border-radius: 0.75rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .dashboard-btn i {
+            margin-right: 0.7em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-mask"></div>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-danger" style="z-index:2;">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-user-shield me-2"></i>系统管理员
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/logout">
+                    <i class="fas fa-sign-out-alt me-1"></i>退出
+                </a>
+            </div>
+        </div>
+    </nav>
+    <div class="main-card shadow">
+        <h2 class="main-title"><i class="fas fa-cogs me-2"></i>系统管理员主页</h2>
+        <div class="d-grid gap-3">
+            <a href="/admin/manage" class="btn btn-danger dashboard-btn">
+                <i class="fas fa-table"></i>全表管理
+            </a>
+            <a href="/admin/users" class="btn btn-warning dashboard-btn">
+                <i class="fas fa-users-cog"></i>用户权限管理
+            </a>
+            <a href="/admin/inventory_stats" class="btn btn-primary dashboard-btn">
+                <i class="fas fa-chart-bar"></i>库存分类统计
+            </a>
+            <a href="/admin/low_quantity_books" class="btn btn-info dashboard-btn">
+                <i class="fas fa-exclamation-triangle"></i>库存不足图书
+            </a>
+            <a href="/admin/bestsellers" class="btn btn-success dashboard-btn">
+                <i class="fas fa-trophy"></i>畅销书排行
+            </a>
+        </div>
+        <div class="text-center mt-4">
+            <a href="/logout" class="btn btn-outline-danger btn-lg"><i class="fas fa-sign-out-alt me-2"></i>退出登录</a>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
