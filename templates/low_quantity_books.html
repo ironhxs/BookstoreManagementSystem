@@ -1,260 +1,105 @@
-﻿<!DOCTYPE html>
-<html lang="zh-CN">
+{% extends 'admin_business_base.html' %}
+{% set role_key = 'admin' if role == '系统管理员' else 'warehouse' if role == '仓库管理员' else 'sales' if role == '销售员' else 'finance' if role == '财务人员' else 'procurement' %}
+{% set page_title = '库存风险' %}
+{% set page_subtitle = '集中查看库存不足图书、缺口排行和补货建议' %}
+{% set active_nav = '库存风险' if role in ['系统管理员', '财务人员'] else '低库存' if role in ['仓库管理员', '销售员'] else '库存预警' %}
+{% set action_label = '返回首页' %}
+{% set action_href = '/admin' if role == '系统管理员' else '/warehouse' if role == '仓库管理员' else '/sales' if role == '销售员' else '/finance' if role == '财务人员' else '/procurement' %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>库存不足图书 - {{ role }}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        .low-stock-item {
-            border-left: 4px solid #dc3545;
-            background-color: #f8f9fa;
-        }
-
-        .critical-stock {
-            border-left-color: #dc3545;
-            background-color: #f8d7da;
-        }
-
-        .warning-stock {
-            border-left-color: #fd7e14;
-            background-color: #fff3cd;
-        }
-
-        .navbar-brand {
-            font-weight: bold;
-        }
-
-        .card {
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-        }
-
-        .stock-badge {
-            font-size: 0.9em;
-        }
-    </style>
-</head>
-
-{% set background_url = '/pic/background/' + (
-'admin-premium-bg.png?v=4' if role == '系统管理员'
-else 'warehouse-premium-bg.png?v=4' if role == '仓库管理员'
-else 'sales-premium-bg.png?v=4' if role == '销售员'
-else 'finance-premium-bg.png?v=4' if role == '财务人员'
-else 'procurement-premium-bg.png?v=4' if role == '采购员'
-else 'general-premium-bg.png?v=4'
-) %}
-
-<body
-    style="background: url('{{ background_url }}') no-repeat center center fixed; background-size: cover; position: relative; min-height: 100vh;">
-    <div class="bg-mask"
-        style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,0.5);z-index:0;"></div>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-warning">
-        <div class="container">
-            <a class="navbar-brand" href="#">
-                <i class="fas fa-exclamation-triangle me-2"></i>库存不足图书
-            </a>
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="
-                    {% if role == '系统管理员' %}/admin
-                    {% elif role == '仓库管理员' %}/warehouse
-                    {% elif role == '销售员' %}/sales
-                    {% elif role == '财务人员' %}/finance
-                    {% elif role == '采购员' %}/procurement
-                    {% endif %}" title="返回主界面">
-                    <i class="fas fa-home me-1"></i>返回主界面
-                </a>
-                <span class="navbar-text me-3">
-                    <i class="fas fa-user me-1"></i>{{ role }}
-                </span>
-                <a class="nav-link" href="/logout">
-                    <i class="fas fa-sign-out-alt me-1"></i>退出
-                </a>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container mt-4" style="position:relative;z-index:1;">
-        <div class="row">
-            <div class="col-12">
-                <div class="card"
-                    style="background:rgba(255,255,255,0.88);border-radius:1rem;box-shadow:0 0.5rem 1rem rgba(0,0,0,0.15);">
-                    <div class="card-header bg-warning text-dark">
-                        <h5 class="mb-0">
-                            <i class="fas fa-exclamation-triangle me-2"></i>库存不足图书列表
-                            <small class="float-end">阈值：≤ 50本</small>
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="alert alert-warning">
-                            <h6><i class="fas fa-info-circle me-2"></i>说明</h6>
-                            <p class="mb-0">以下图书库存数量低于50本，建议及时补货以避免缺货情况。</p>
-                        </div>
-
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th><i class="fas fa-hashtag me-1"></i>图书ID</th>
-                                        <th><i class="fas fa-book me-1"></i>图书名称</th>
-                                        <th><i class="fas fa-boxes me-1"></i>当前库存</th>
-                                        <th><i class="fas fa-clock me-1"></i>最后更新</th>
-                                        <th><i class="fas fa-exclamation me-1"></i>状态</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% if books %}
-                                    {% for book in books %}
-                                    <tr
-                                        class="low-stock-item {% if book[2] <= 10 %}critical-stock{% elif book[2] <= 20 %}warning-stock{% endif %}">
-                                        <td>{{ book[0] }}</td>
-                                        <td>
-                                            <strong>{{ book[1] }}</strong>
-                                        </td>
-                                        <td>
-                                            <span
-                                                class="badge stock-badge {% if book[2] <= 10 %}bg-danger{% elif book[2] <= 20 %}bg-warning{% else %}bg-secondary{% endif %}">
-                                                {{ book[2] }}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <small class="text-muted">
-                                                {% if book[3] %}
-                                                {{ book[3].strftime('%Y-%m-%d %H:%M') if book[3] else '未知' }}
-                                                {% else %}
-                                                未知
-                                                {% endif %}
-                                            </small>
-                                        </td>
-                                        <td>
-                                            {% if book[2] <= 10 %} <span class="badge bg-danger">
-                                                <i class="fas fa-exclamation-triangle me-1"></i>紧急
-                                                </span>
-                                                {% elif book[2] <= 20 %} <span class="badge bg-warning">
-                                                    <i class="fas fa-exclamation me-1"></i>警告
-                                                    </span>
-                                                    {% else %}
-                                                    <span class="badge bg-info">
-                                                        <i class="fas fa-info-circle me-1"></i>注意
-                                                    </span>
-                                                    {% endif %}
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                    {% else %}
-                                    <tr>
-                                        <td colspan="5" class="text-center text-muted">
-                                            <i class="fas fa-check-circle me-2"></i>暂无库存不足的图书
-                                        </td>
-                                    </tr>
-                                    {% endif %}
-                                </tbody>
-                            </table>
-                        </div>
-
-                        {% if books %}
-                        <div class="row mt-4">
-                            <div class="col-md-6">
-                                <div class="alert alert-info">
-                                    <h6><i class="fas fa-lightbulb me-2"></i>建议操作</h6>
-                                    <ul class="mb-0">
-                                        <li>库存 ≤ 10本：立即补货</li>
-                                        <li>库存 11-20本：尽快补货</li>
-                                        <li>库存 21-50本：计划补货</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="alert alert-secondary">
-                                    <h6><i class="fas fa-users me-2"></i>角色职责</h6>
-                                    <ul class="mb-0">
-                                        <li><strong>采购员</strong>：负责联系供应商补货</li>
-                                        <li><strong>仓库管理员</strong>：监控库存变化</li>
-                                        <li><strong>销售员</strong>：关注销售趋势</li>
-                                        <li><strong>财务人员</strong>：评估补货成本</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
+{% block primary %}
+<section class="admin-panel is-table">
+    <div class="admin-panel-title">
+        <h2>库存不足图书</h2>
+        <span>阈值：小于等于 50 册</span>
+    </div>
+    <div class="admin-table-wrap">
+        <table class="admin-table is-auto">
+            <thead>
+                <tr>
+                    <th>图书ID</th>
+                    <th>图书名称</th>
+                    <th>当前库存</th>
+                    <th>最后更新</th>
+                    <th>状态</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if books %}
+                {% for book in books %}
+                <tr>
+                    <td>{{ book[0] }}</td>
+                    <td>{{ book[1] }}</td>
+                    <td>{{ book[2] }}</td>
+                    <td>{{ book[3].strftime('%Y-%m-%d %H:%M') if book[3] and book[3].strftime is defined else book[3] or '未知' }}</td>
+                    <td>
+                        {% if book[2] <= 10 %}
+                        <span class="admin-tag is-red">紧急</span>
+                        {% elif book[2] <= 20 %}
+                        <span class="admin-tag is-amber">预警</span>
+                        {% else %}
+                        <span class="admin-tag is-amber">关注</span>
                         {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h6 class="mb-0">
-                            <i class="fas fa-chart-bar me-2"></i>库存统计
-                        </h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="row text-center">
-                            <div class="col-md-3">
-                                <div class="border rounded p-3">
-                                    <h4 class="text-danger">
-                                        {% if books %}
-                                        {{ books|selectattr(2, 'le', 10)|list|length }}
-                                        {% else %}
-                                        0
-                                        {% endif %}
-                                    </h4>
-                                    <p class="text-muted mb-0">紧急补货 (≤10本)</p>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="border rounded p-3">
-                                    <h4 class="text-warning">
-                                        {% if books %}
-                                        {{ books|selectattr(2, 'le', 20)|selectattr(2, 'gt', 10)|list|length }}
-                                        {% else %}
-                                        0
-                                        {% endif %}
-                                    </h4>
-                                    <p class="text-muted mb-0">警告补货 (11-20本)</p>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="border rounded p-3">
-                                    <h4 class="text-info">
-                                        {% if books %}
-                                        {{ books|selectattr(2, 'le', 50)|selectattr(2, 'gt', 20)|list|length }}
-                                        {% else %}
-                                        0
-                                        {% endif %}
-                                    </h4>
-                                    <p class="text-muted mb-0">注意补货 (21-50本)</p>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="border rounded p-3">
-                                    <h4 class="text-success">{{ books|length if books else 0 }}</h4>
-                                    <p class="text-muted mb-0">总计</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr><td class="admin-empty" colspan="5">暂无库存不足的图书</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
     </div>
+</section>
 
-    <div class="text-center mt-4 mb-2">
-        <a href="
-            {% if role == '系统管理员' %}/admin
-            {% elif role == '仓库管理员' %}/warehouse
-            {% elif role == '销售员' %}/sales
-            {% elif role == '财务人员' %}/finance
-            {% elif role == '采购员' %}/procurement
-            {% endif %}" class="btn btn-primary btn-lg" title="返回主界面" style="z-index:2;position:relative;">
-            <i class="fas fa-home me-2"></i>返回{{ role }}主界面
-        </a>
+<section class="admin-panel">
+    <div class="admin-panel-title">
+        <h2>缺口排行</h2>
+        <span>越靠前越优先补货</span>
     </div>
+    {% if books %}
+    {% for book in books[:3] %}
+    {% set shortage = 50 - book[2] %}
+    <div class="admin-bar-row">
+        <div><strong>{{ book[1] }}</strong><span>当前 {{ book[2] }} / 阈值 50</span></div>
+        <div class="admin-track"><div class="admin-fill" style="--v: {{ 90 - loop.index0 * 18 }}%"></div></div>
+        <div class="admin-bar-value">{{ '临界' if shortage <= 0 else '缺 ' ~ shortage }}</div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="admin-empty">暂无缺口排行</div>
+    {% endif %}
+</section>
+{% endblock %}
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+{% block side %}
+<section class="admin-panel">
+    <div class="admin-panel-title">
+        <h2>补货建议</h2>
+        <span>按库存阈值</span>
+    </div>
+    <div class="admin-task">
+        <div><strong>库存 ≤ 10 册</strong><span>立即补货，避免断货</span></div>
+        <b class="admin-tag is-red">{{ books|selectattr(2, 'le', 10)|list|length if books else 0 }}</b>
+    </div>
+    <div class="admin-task">
+        <div><strong>库存 11-20 册</strong><span>尽快补货</span></div>
+        <b class="admin-tag is-amber">{{ books|selectattr(2, 'le', 20)|selectattr(2, 'gt', 10)|list|length if books else 0 }}</b>
+    </div>
+    <div class="admin-task">
+        <div><strong>库存 21-50 册</strong><span>计划补货</span></div>
+        <b class="admin-tag">{{ books|selectattr(2, 'le', 50)|selectattr(2, 'gt', 20)|list|length if books else 0 }}</b>
+    </div>
+</section>
 
-</html>
+<section class="admin-panel">
+    <div class="admin-panel-title">
+        <h2>库存统计</h2>
+        <span>当前列表</span>
+    </div>
+    <div class="admin-mini-grid">
+        <div class="admin-mini"><span>紧急补货</span><strong>{{ books|selectattr(2, 'le', 10)|list|length if books else 0 }}</strong><em>≤ 10 册</em></div>
+        <div class="admin-mini"><span>预警补货</span><strong>{{ books|selectattr(2, 'le', 20)|selectattr(2, 'gt', 10)|list|length if books else 0 }}</strong><em>11-20 册</em></div>
+        <div class="admin-mini"><span>关注补货</span><strong>{{ books|selectattr(2, 'le', 50)|selectattr(2, 'gt', 20)|list|length if books else 0 }}</strong><em>21-50 册</em></div>
+        <div class="admin-mini"><span>总数</span><strong>{{ books|length if books else 0 }}</strong><em>低库存</em></div>
+    </div>
+</section>
+{% endblock %}

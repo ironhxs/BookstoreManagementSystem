@@ -1,273 +1,116 @@
-﻿<!DOCTYPE html>
-<html lang="zh-CN">
+{% extends 'admin_business_base.html' %}
+{% set role_key = 'finance' %}
+{% set page_title = '图书统计' %}
+{% set page_subtitle = '按时间段统计图书进货、销售、库存和预估利润' %}
+{% set active_nav = '图书统计' %}
+{% set action_label = '经营分析' %}
+{% set action_href = url_for('finance_dashboard') %}
+{% set screen_class = 'is-single-page' %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>书籍统计报表</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        body {
-            min-height: 100vh;
-            background: url('/pic/background/finance-premium-bg.png?v=4') no-repeat center center fixed;
-            background-size: cover;
-            position: relative;
-        }
-
-        .bg-mask {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.5);
-            z-index: 0;
-        }
-
-        .main-card {
-            position: relative;
-            z-index: 1;
-            max-width: 1400px;
-            margin: 7vh auto;
-            background: rgba(255, 255, 255, 0.88);
-            border-radius: 1rem;
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-            padding: 2.5rem 2rem 2rem 2rem;
-        }
-
-        .main-title {
-            font-weight: bold;
-            color: #198754;
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .table {
-            background: white;
-            border-radius: 0.5rem;
-            overflow: hidden;
-        }
-
-        .stats-card {
-            background: linear-gradient(135deg, #198754 0%, #20c997 100%);
-            color: white;
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            text-align: center;
-            box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
-        }
-
-        .stats-number {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-        }
-
-        .stats-label {
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-
-        .form-container {
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            border: 1px solid rgba(25, 135, 84, 0.2);
-        }
-
-        .back-link {
-            margin-top: 1.5rem;
-        }
-
-        .badge {
-            font-size: 0.8rem;
-            padding: 0.4rem 0.8rem;
-            border-radius: 0.5rem;
-        }
-
-        .table-responsive {
-            border-radius: 0.5rem;
-            overflow: hidden;
-            box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
-        }
-    </style>
-</head>
-
-<body>
-    <div class="bg-mask"></div>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-success" style="z-index:1;">
-        <div class="container">
-            <a class="navbar-brand" href="/finance">
-                <i class="fas fa-coins me-2"></i>财务人员
-            </a>
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="/finance">
-                    <i class="fas fa-home me-1"></i>主页
-                </a>
-                <a class="nav-link" href="/logout">
-                    <i class="fas fa-sign-out-alt me-1"></i>退出
-                </a>
-            </div>
-        </div>
-    </nav>
-    <div class="main-card shadow">
-        <h2 class="main-title"><i class="fas fa-chart-line me-2"></i>书籍统计报表</h2>
-        <p class="text-center text-muted mb-4">查看指定时间段内所有书籍的进货和销售情况</p>
-
-        <!-- 日期选择表单 -->
-        <div class="form-container">
-            <form method="GET" class="row g-3 align-items-end">
-                <div class="col-md-4">
-                    <label for="start_date" class="form-label">
-                        <i class="fas fa-calendar-alt me-1"></i>开始日期
-                    </label>
-                    <input type="datetime-local" class="form-control" id="start_date" name="start_date"
-                        value="{{ request.args.get('start_date', '') }}" required>
-                </div>
-                <div class="col-md-4">
-                    <label for="end_date" class="form-label">
-                        <i class="fas fa-calendar-alt me-1"></i>结束日期
-                    </label>
-                    <input type="datetime-local" class="form-control" id="end_date" name="end_date"
-                        value="{{ request.args.get('end_date', '') }}" required>
-                </div>
-                <div class="col-md-4">
-                    <button type="submit" class="btn btn-success w-100">
-                        <i class="fas fa-search me-1"></i>查询统计
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        {% if stats %}
-        <!-- 统计摘要 -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="stats-card">
-                    <div class="stats-number">{{ total_books }}</div>
-                    <div class="stats-label">总书籍数</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stats-card">
-                    <div class="stats-number">{{ total_purchase_quantity }}</div>
-                    <div class="stats-label">总进货量</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stats-card">
-                    <div class="stats-number">{{ total_sales_quantity }}</div>
-                    <div class="stats-label">总销售量</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stats-card">
-                    <div class="stats-number">¥{{ "%.2f"|format(total_profit) }}</div>
-                    <div class="stats-label">预估利润</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 统计结果表格 -->
-        <div class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead class="table-success">
-                    <tr>
-                        <th><i class="fas fa-barcode me-1"></i>图书编号</th>
-                        <th><i class="fas fa-book me-1"></i>书名</th>
-                        <th><i class="fas fa-user me-1"></i>作者</th>
-                        <th><i class="fas fa-tags me-1"></i>分类</th>
-                        <th><i class="fas fa-shopping-cart me-1"></i>进货量</th>
-                        <th><i class="fas fa-dollar-sign me-1"></i>进货金额</th>
-                        <th><i class="fas fa-shopping-bag me-1"></i>销售量</th>
-                        <th><i class="fas fa-dollar-sign me-1"></i>销售金额</th>
-                        <th><i class="fas fa-boxes me-1"></i>当前库存</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for book in stats %}
-                    <tr>
-                        <td>
-                            <span class="badge bg-primary">{{ book[0] }}</span>
-                        </td>
-                        <td>
-                            <strong>{{ book[1] }}</strong>
-                        </td>
-                        <td>{{ book[2] }}</td>
-                        <td>
-                            <span class="badge bg-info">{{ book[3] }}</span>
-                        </td>
-                        <td>
-                            <span class="text-success fw-bold">{{ book[4] }}</span>
-                        </td>
-                        <td>
-                            <span class="text-primary fw-bold">¥{{ "%.2f"|format(book[5]) }}</span>
-                        </td>
-                        <td>
-                            <span class="text-warning fw-bold">{{ book[6] }}</span>
-                        </td>
-                        <td>
-                            <span class="text-success fw-bold">¥{{ "%.2f"|format(book[7]) }}</span>
-                        </td>
-                        <td>
-                            {% if book[8] > 10 %}
-                            <span class="badge bg-success">{{ book[8] }}</span>
-                            {% elif book[8] > 0 %}
-                            <span class="badge bg-warning">{{ book[8] }}</span>
-                            {% else %}
-                            <span class="badge bg-danger">{{ book[8] }}</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% elif request.args.get('start_date') and request.args.get('end_date') %}
-        <!-- 无数据提示 -->
-        <div class="alert alert-info text-center">
-            <i class="fas fa-info-circle fa-2x mb-3"></i>
-            <h5>暂无数据</h5>
-            <p>在指定的时间段内没有找到相关的进货或销售记录。</p>
-        </div>
-        {% endif %}
-
-        {% if error %}
-        <!-- 错误提示 -->
-        <div class="alert alert-danger">
-            <i class="fas fa-exclamation-triangle me-2"></i>
-            <strong>查询错误：</strong> {{ error }}
-        </div>
-        {% endif %}
-
-        <div class="text-center back-link">
-            <a href="/finance" class="btn btn-outline-success">
-                <i class="fas fa-arrow-left me-1"></i>返回财务主页
-            </a>
-        </div>
+{% block primary %}
+<section class="admin-panel is-table">
+    <div class="admin-panel-title">
+        <h2>统计结果</h2>
+        <span>{{ stats|length if stats else 0 }} 本图书</span>
     </div>
+    {% if error %}
+    <div class="admin-alert">查询错误：{{ error }}</div>
+    {% endif %}
+    <form class="admin-toolbar" method="get">
+        <input class="admin-input" type="datetime-local" id="start_date" name="start_date" value="{{ request.args.get('start_date', '') }}" required>
+        <input class="admin-input" type="datetime-local" id="end_date" name="end_date" value="{{ request.args.get('end_date', '') }}" required>
+        <button class="admin-btn" type="submit">查询统计</button>
+    </form>
+    {% if stats %}
+    <div class="admin-table-wrap">
+        <table class="admin-table is-auto">
+            <thead>
+                <tr>
+                    <th>图书编号</th>
+                    <th>书名</th>
+                    <th>作者</th>
+                    <th>分类</th>
+                    <th>进货量</th>
+                    <th>进货金额</th>
+                    <th>销售量</th>
+                    <th>销售金额</th>
+                    <th>当前库存</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for book in stats %}
+                <tr>
+                    <td>{{ book[0] }}</td>
+                    <td>{{ book[1] }}</td>
+                    <td>{{ book[2] }}</td>
+                    <td>{{ book[3] }}</td>
+                    <td>{{ book[4] }}</td>
+                    <td>¥{{ "%.2f"|format(book[5]) }}</td>
+                    <td>{{ book[6] }}</td>
+                    <td>¥{{ "%.2f"|format(book[7]) }}</td>
+                    <td>
+                        {% if book[8] > 10 %}
+                        <span class="admin-tag">{{ book[8] }}</span>
+                        {% elif book[8] > 0 %}
+                        <span class="admin-tag is-amber">{{ book[8] }}</span>
+                        {% else %}
+                        <span class="admin-tag is-red">{{ book[8] }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% elif request.args.get('start_date') and request.args.get('end_date') %}
+    <div class="admin-empty">指定时间段内暂无进货或销售记录</div>
+    {% else %}
+    <div class="admin-empty">请选择时间段后查询统计数据</div>
+    {% endif %}
+</section>
+{% endblock %}
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const startDate = document.getElementById('start_date');
-            const endDate = document.getElementById('end_date');
+{% block side %}
+<section class="admin-panel">
+    <div class="admin-panel-title">
+        <h2>统计摘要</h2>
+        <span>当前查询</span>
+    </div>
+    <div class="admin-mini-grid">
+        <div class="admin-mini"><span>总书籍数</span><strong>{{ total_books|default(0) }}</strong><em>本</em></div>
+        <div class="admin-mini"><span>总进货量</span><strong>{{ total_purchase_quantity|default(0) }}</strong><em>册</em></div>
+        <div class="admin-mini"><span>总销售量</span><strong>{{ total_sales_quantity|default(0) }}</strong><em>册</em></div>
+        <div class="admin-mini"><span>预估利润</span><strong>¥{{ "%.2f"|format(total_profit|default(0)) }}</strong><em>销售-进货</em></div>
+    </div>
+</section>
+<section class="admin-panel">
+    <div class="admin-panel-title">
+        <h2>说明</h2>
+        <span>财务侧</span>
+    </div>
+    <div class="admin-detail-list">
+        <p>统计结果来自项目原有函数接口。</p>
+        <p>库存状态按当前库存数量显示。</p>
+    </div>
+</section>
+{% endblock %}
 
-            if (!startDate.value) {
-                const thirtyDaysAgo = new Date();
-                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-                startDate.value = thirtyDaysAgo.toISOString().slice(0, 16);
-            }
-
-            if (!endDate.value) {
-                const now = new Date();
-                endDate.value = now.toISOString().slice(0, 16);
-            }
-        });
-    </script>
-</body>
-
-</html>
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const startDate = document.getElementById('start_date');
+        const endDate = document.getElementById('end_date');
+        function localValue(date) {
+            return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+        }
+        if (startDate && !startDate.value) {
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            startDate.value = localValue(thirtyDaysAgo);
+        }
+        if (endDate && !endDate.value) {
+            endDate.value = localValue(new Date());
+        }
+    });
+</script>
+{% endblock %}

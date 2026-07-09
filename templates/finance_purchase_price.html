@@ -1,128 +1,71 @@
-﻿<!DOCTYPE html>
-<html lang="zh-CN">
+{% extends 'admin_business_base.html' %}
+{% set role_key = 'finance' %}
+{% set page_title = '采购价格' %}
+{% set page_subtitle = '监督采购明细价格，支持对采购价进行修正' %}
+{% set active_nav = '采购价格' %}
+{% set action_label = '采购审核' %}
+{% set action_href = url_for('finance_audit') %}
+{% set screen_class = 'is-single-page' %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>采购价监督</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        body {
-            min-height: 100vh;
-            background: url('/pic/background/finance-premium-bg.png?v=4') no-repeat center center fixed;
-            background-size: cover;
-            position: relative;
-        }
-
-        .bg-mask {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.5);
-            z-index: 0;
-        }
-
-        .main-card {
-            position: relative;
-            z-index: 1;
-            max-width: 1000px;
-            margin: 7vh auto;
-            background: rgba(255, 255, 255, 0.88);
-            border-radius: 1rem;
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-            padding: 2.5rem 2rem 2rem 2rem;
-        }
-
-        .main-title {
-            font-weight: bold;
-            color: #198754;
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .table {
-            background: white;
-            border-radius: 0.5rem;
-            overflow: hidden;
-        }
-
-        .back-link {
-            margin-top: 1.5rem;
-        }
-
-        .btn-save {
-            white-space: nowrap;
-        }
-    </style>
-</head>
-
-<body>
-    <div class="bg-mask"></div>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-success" style="z-index:1;">
-        <div class="container">
-            <a class="navbar-brand" href="/finance">
-                <i class="fas fa-coins me-2"></i>财务人员
-            </a>
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="/finance">
-                    <i class="fas fa-home me-1"></i>主页
-                </a>
-                <a class="nav-link" href="/logout">
-                    <i class="fas fa-sign-out-alt me-1"></i>退出
-                </a>
-            </div>
-        </div>
-    </nav>
-    <div class="main-card shadow">
-        <h2 class="main-title"><i class="fas fa-yen-sign me-2"></i>采购价监督</h2>
-        {% if msg %}
-        <div class="alert alert-info alert-dismissible fade show" role="alert">
-            <i class="fas fa-info-circle me-2"></i>{{ msg }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="关闭"></button>
-        </div>
-        {% endif %}
-        <div class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead class="table-success">
-                    <tr>
-                        <th>明细号</th>
-                        <th>订单号</th>
-                        <th>图书ID</th>
-                        <th>数量</th>
-                        <th>采购价</th>
-                        <th>操作</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for d in details %}
-                    <tr>
-                        <form method="post">
-                            <td>{{ d[0] }}</td>
-                            <td>{{ d[1] }}</td>
-                            <td>{{ d[2] }}</td>
-                            <td>{{ d[3] }}</td>
-                            <td><input type="number" name="purchase_price" value="{{ d[4] }}" min="0" step="0.01"
-                                    required title="采购价" placeholder="采购价" class="form-control"
-                                    style="width:110px;display:inline-block;"></td>
-                            <td>
-                                <input type="hidden" name="item_id" value="{{ d[0] }}">
-                                <button type="submit" class="btn btn-outline-success btn-sm btn-save"><i
-                                        class="fas fa-save me-1"></i>保存</button>
-                            </td>
-                        </form>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        <div class="text-center back-link mt-3">
-            <a href="/finance" class="btn btn-outline-success"><i class="fas fa-arrow-left me-1"></i>返回财务主页</a>
-        </div>
+{% block primary %}
+<section class="admin-panel is-table">
+    <div class="admin-panel-title">
+        <h2>采购价监督</h2>
+        <span>{{ details|length }} 条明细</span>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+    {% if msg %}
+    <div class="admin-alert">{{ msg }}</div>
+    {% endif %}
+    <div class="admin-table-wrap">
+        <table class="admin-table is-auto">
+            <thead>
+                <tr>
+                    <th>明细号</th>
+                    <th>订单号</th>
+                    <th>图书ID</th>
+                    <th>数量</th>
+                    <th>采购价</th>
+                    <th class="col-actions">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in details %}
+                <tr>
+                    <form method="post" class="admin-inline-form">
+                        <td>{{ d[0] }}</td>
+                        <td>{{ d[1] }}</td>
+                        <td>{{ d[2] }}</td>
+                        <td>{{ d[3] }}</td>
+                        <td><input class="admin-input" type="number" name="purchase_price" value="{{ d[4] }}" min="0" step="0.01" required></td>
+                        <td>
+                            <input type="hidden" name="item_id" value="{{ d[0] }}">
+                            <button class="admin-btn" type="submit">保存</button>
+                        </td>
+                    </form>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}
 
-</html>
+{% block side %}
+<section class="admin-panel">
+    <div class="admin-panel-title">
+        <h2>审核说明</h2>
+        <span>采购成本</span>
+    </div>
+    <div class="admin-detail-list">
+        <p>采购价会影响采购金额汇总和经营分析。</p>
+        <p>修改后直接更新采购明细表。</p>
+    </div>
+</section>
+<section class="admin-panel">
+    <div class="admin-panel-title">
+        <h2>跳转</h2>
+        <span>财务侧</span>
+    </div>
+    <a class="admin-btn" href="/finance/audit">查看审核表</a>
+</section>
+{% endblock %}

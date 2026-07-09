@@ -1,133 +1,500 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>登录 - 书店管理系统</title>
+    <title>登录 - 书店进销存管理系统</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/static/app.css?v=2" rel="stylesheet">
     <style>
-        body {
+        body.login-page {
+            display: grid;
+            grid-template-columns: minmax(0, 1.46fr) minmax(390px, 0.92fr);
             min-height: 100vh;
-            background: url('/pic/background/login-hero-generated.png?v=1') no-repeat center center fixed;
-            background-size: cover;
+            padding: 28px;
+            background: #edf2f7 !important;
+            background-size: auto !important;
+        }
+
+        body.login-page::before {
+            display: none;
+        }
+
+        .login-frame {
+            display: grid;
+            grid-template-columns: minmax(0, 1.45fr) minmax(380px, 0.9fr);
+            min-height: calc(100vh - 56px);
+            grid-column: 1 / -1;
+            overflow: hidden;
+            background: #fff;
+            border: 1px solid rgba(148, 163, 184, 0.32);
+            border-radius: 18px;
+            box-shadow: 0 28px 70px rgba(15, 23, 42, 0.16);
+        }
+
+        .login-visual {
             position: relative;
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
+            overflow: hidden;
+            padding: 72px 84px;
+            color: #fff;
+            background:
+                linear-gradient(90deg, rgba(4, 10, 18, 0.96) 0%, rgba(4, 10, 18, 0.86) 42%, rgba(4, 10, 18, 0.48) 100%),
+                linear-gradient(180deg, rgba(4, 10, 18, 0.18) 0%, rgba(4, 10, 18, 0.64) 100%),
+                url('/static/img/login-hero-ipFvj.jpg') center center / cover no-repeat;
         }
 
-        .bg-mask {
+        .login-visual::before {
+            content: "";
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            inset: 0;
             background:
-                radial-gradient(circle at center, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.03) 45%),
-                linear-gradient(115deg, rgba(20, 42, 69, 0.1), rgba(255, 255, 255, 0.08), rgba(31, 91, 166, 0.12));
-            z-index: 1;
+                linear-gradient(90deg, rgba(20, 184, 166, 0.11), transparent 36%),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 32%);
+            pointer-events: none;
+        }
+
+        .visual-line {
+            position: absolute;
+            left: 92px;
+            top: 118px;
+            bottom: 118px;
+            width: 1px;
+            border-left: 1px solid rgba(255, 255, 255, 0.22);
+        }
+
+        .visual-copy {
+            position: relative;
+            max-width: 620px;
+            margin-left: 54px;
+            transform: translateY(-22px);
+            z-index: 2;
+        }
+
+        .visual-copy h1 {
+            margin: 0;
+            font-family: "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Segoe UI", sans-serif;
+            font-size: clamp(3.1rem, 4.55vw, 5.2rem);
+            font-weight: 820;
+            line-height: 1.06;
+            letter-spacing: 0;
+            text-shadow: 0 18px 38px rgba(0, 0, 0, 0.44);
+        }
+
+        .visual-copy h1 span {
+            display: block;
+            margin-top: 8px;
+            font-size: 0.92em;
+            font-weight: 780;
+        }
+
+        .title-rule {
+            width: 82px;
+            height: 3px;
+            margin-top: 30px;
+            background: #14b8a6;
+            border-radius: 99px;
+        }
+
+        .ops-canvas {
+            display: none;
+        }
+
+        .book-stack {
+            position: absolute;
+            left: 88px;
+            bottom: 96px;
+            width: 390px;
+            height: 170px;
+        }
+
+        .book {
+            position: absolute;
+            left: calc(var(--x) * 1px);
+            bottom: calc(var(--y) * 1px);
+            width: 320px;
+            height: 34px;
+            border-radius: 5px 10px 10px 5px;
+            background: linear-gradient(90deg, var(--c) 0 18%, #f8fafc 18% 86%, #cbd5e1 86%);
+            box-shadow: 0 12px 22px rgba(0, 0, 0, 0.26);
+            transform: skewX(-10deg);
+        }
+
+        .book::after {
+            content: "";
+            position: absolute;
+            left: 42px;
+            right: 42px;
+            top: 9px;
+            height: 2px;
+            background: rgba(15, 23, 42, 0.16);
+            border-radius: 99px;
+        }
+
+        .box {
+            position: absolute;
+            left: var(--left);
+            bottom: var(--bottom);
+            width: var(--size);
+            height: calc(var(--size) * 0.72);
+            background: linear-gradient(135deg, #b7793b, #e8a85d);
+            border: 1px solid rgba(0, 0, 0, 0.18);
+            border-radius: 4px;
+            box-shadow: 0 16px 28px rgba(0, 0, 0, 0.26);
+        }
+
+        .box::before {
+            content: "";
+            position: absolute;
+            left: 48%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: rgba(255, 255, 255, 0.28);
+        }
+
+        .db {
+            position: absolute;
+            right: 190px;
+            bottom: 116px;
+            width: 162px;
+            height: 132px;
+            border-radius: 50% / 14%;
+            background: linear-gradient(180deg, #1f2937, #475569);
+            border: 1px solid rgba(45, 212, 191, 0.35);
+            box-shadow: inset 0 10px 0 rgba(255, 255, 255, 0.18), 0 24px 44px rgba(0, 0, 0, 0.38);
+        }
+
+        .db::before,
+        .db::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 34px;
+            border-radius: 50%;
+        }
+
+        .db::before {
+            top: 0;
+            border: 2px solid rgba(45, 212, 191, 0.72);
+        }
+
+        .db::after {
+            bottom: 30px;
+            border-top: 3px solid rgba(45, 212, 191, 0.75);
+        }
+
+        .flow-node {
+            position: absolute;
+            display: grid;
+            width: 66px;
+            height: 66px;
+            place-items: center;
+            color: #fff;
+            border-radius: 50%;
+            background: rgba(15, 23, 42, 0.72);
+            border: 2px solid var(--c);
+            box-shadow: 0 16px 28px rgba(0, 0, 0, 0.28);
+        }
+
+        .flow-node i {
+            color: var(--c);
+            font-size: 1.45rem;
+        }
+
+        .flow-label {
+            position: absolute;
+            color: var(--c);
+            font-size: 0.88rem;
+            font-weight: 850;
+            white-space: nowrap;
+        }
+
+        .flow-line {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(90deg, #14b8a6, #f59e0b);
+            transform-origin: left center;
+            opacity: 0.9;
+        }
+
+        .metrics-strip {
+            position: absolute;
+            left: 88px;
+            right: 118px;
+            bottom: 42px;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 0;
+            overflow: hidden;
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, 0.11);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            backdrop-filter: blur(12px);
+        }
+
+        .metric {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+            padding: 0 16px;
+            border-right: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .metric:last-child {
+            border-right: 0;
+        }
+
+        .metric i {
+            display: grid;
+            flex: 0 0 38px;
+            width: 38px;
+            height: 38px;
+            place-items: center;
+            color: rgba(255, 255, 255, 0.76);
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 50%;
+        }
+
+        .metric strong {
+            display: block;
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+
+        .metric span {
+            color: rgba(255, 255, 255, 0.62);
+            font-size: 0.78rem;
+        }
+
+        .login-side {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 46px;
+            background:
+                radial-gradient(circle at 30% 18%, rgba(15, 118, 110, 0.05), transparent 24%),
+                #ffffff;
         }
 
         .login-card {
-            position: relative;
-            z-index: 2;
-            width: min(420px, calc(100vw - 2rem));
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.88);
-            border: 1px solid rgba(255, 255, 255, 0.72);
-            border-radius: 1.25rem;
-            box-shadow: 0 1.2rem 3rem rgba(25, 44, 72, 0.18);
-            backdrop-filter: blur(14px);
-            padding: 2.5rem 2.15rem 2.1rem 2.15rem;
+            width: min(100%, 540px);
+            padding: 48px 46px 42px;
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            box-shadow: 0 20px 52px rgba(15, 23, 42, 0.1);
         }
 
-        .login-title {
-            font-weight: bold;
-            color: #1f5ba6;
+        .login-card h2 {
+            margin: 0;
+            color: #111827;
             text-align: center;
-            margin-bottom: 0.35rem;
-            letter-spacing: 0.02em;
+            font-size: 2rem;
+            font-weight: 950;
         }
 
         .login-subtitle {
-            color: #6b7280;
-            font-size: 0.95rem;
+            margin: 12px 0 34px;
+            color: #667085;
             text-align: center;
-            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
         }
 
-        .form-label {
-            font-weight: 500;
+        .login-card .form-label {
+            margin-bottom: 9px;
+            color: #172033;
+            font-weight: 850;
         }
 
-        .form-control {
-            border-radius: 0.5rem;
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-wrap i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            color: #667085;
+            transform: translateY(-50%);
+        }
+
+        .input-wrap .form-control {
+            height: 50px;
+            padding-left: 46px;
+            border-radius: 7px !important;
+        }
+
+        .forgot-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 4px 0 28px;
+            color: #667085;
+            font-size: 0.88rem;
+        }
+
+        .forgot-row a {
+            color: #0f766e;
+            font-weight: 800;
+            text-decoration: none;
         }
 
         .login-btn {
             width: 100%;
-            font-weight: bold;
-            border: none;
-            border-radius: 0.65rem;
-            background: linear-gradient(135deg, #b3313c, #1f5ba6);
-            box-shadow: 0 0.55rem 1.2rem rgba(31, 91, 166, 0.2);
+            height: 52px;
+            background: #0f9f92 !important;
+            border: none !important;
+            border-radius: 7px !important;
+            font-size: 1rem;
+            font-weight: 900;
         }
 
-        .login-icon {
-            color: #b3313c;
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
+        .security-note {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 26px;
+            color: #667085;
+            font-size: 0.84rem;
         }
 
-        .demo-account {
-            margin-top: 1rem;
-            padding: 0.7rem 0.85rem;
-            border-radius: 0.75rem;
-            background: rgba(31, 91, 166, 0.08);
-            color: #25405f;
-            font-size: 0.9rem;
+        .security-note i {
+            color: #0f9f92;
         }
 
-        .alert {
-            margin-bottom: 1rem;
+        @media (max-width: 1120px) {
+            body.login-page {
+                display: block;
+            }
+
+            .login-frame {
+                grid-template-columns: 1fr;
+            }
+
+            .login-visual {
+                min-height: 640px;
+            }
+        }
+
+        @media (max-width: 720px) {
+            body.login-page {
+                padding: 12px;
+            }
+
+            .login-visual {
+                min-height: auto;
+                padding: 34px 24px;
+            }
+
+            .visual-copy {
+                margin-left: 0;
+            }
+
+            .visual-line,
+            .ops-canvas,
+            .metrics-strip {
+                display: none;
+            }
+
+            .login-side {
+                padding: 24px;
+            }
+
+            .login-card {
+                padding: 34px 24px;
+            }
         }
     </style>
 </head>
 
-<body>
-    <div class="bg-mask"></div>
-    <div class="login-card shadow">
-        <div class="text-center">
-            <i class="fas fa-book-open login-icon"></i>
-            <h2 class="login-title">书店管理系统登录</h2>
-            <div class="login-subtitle">图书进销货与库存协同管理</div>
-        </div>
-        {% if error %}
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="关闭"></button>
-        </div>
-        {% endif %}
-        <form method="post">
-            <div class="mb-3">
-                <label class="form-label" for="username">用户名</label>
-                <input type="text" class="form-control" id="username" name="username" required autofocus
-                    placeholder="请输入用户名">
+<body class="login-page">
+    <div class="login-frame">
+        <section class="login-visual">
+            <div class="visual-line"></div>
+            <div class="visual-copy">
+                <h1>书店进销存<span>管理系统</span></h1>
+                <div class="title-rule"></div>
             </div>
-            <div class="mb-3">
-                <label class="form-label" for="password">密码</label>
-                <input type="password" class="form-control" id="password" name="password" required placeholder="请输入密码">
+
+            <div class="ops-canvas" aria-hidden="true">
+                <div class="book-stack">
+                    <div class="book" style="--x:0;--y:0;--c:#0f172a;"></div>
+                    <div class="book" style="--x:20;--y:34;--c:#b7793b;"></div>
+                    <div class="book" style="--x:6;--y:68;--c:#cbd5e1;"></div>
+                    <div class="book" style="--x:28;--y:102;--c:#1d4ed8;"></div>
+                    <div class="book" style="--x:44;--y:136;--c:#52614c;"></div>
+                </div>
+                <div class="box" style="--left:470px;--bottom:112px;--size:92px;"></div>
+                <div class="box" style="--left:560px;--bottom:84px;--size:100px;"></div>
+                <div class="box" style="--left:520px;--bottom:172px;--size:78px;"></div>
+                <div class="db"></div>
+                <div class="flow-node" style="--c:#cbd5e1;left:260px;bottom:226px;"><i class="fas fa-cart-shopping"></i></div>
+                <div class="flow-label" style="--c:#cbd5e1;left:260px;bottom:300px;">采购管理</div>
+                <div class="flow-node" style="--c:#2dd4bf;left:522px;bottom:254px;"><i class="fas fa-cube"></i></div>
+                <div class="flow-label" style="--c:#2dd4bf;left:522px;bottom:328px;">库存管理</div>
+                <div class="flow-node" style="--c:#f59e0b;right:258px;bottom:242px;"><i class="fas fa-file-invoice"></i></div>
+                <div class="flow-label" style="--c:#f59e0b;right:252px;bottom:318px;">销售管理</div>
+                <div class="flow-line" style="left:326px;bottom:258px;width:206px;transform:rotate(-5deg);"></div>
+                <div class="flow-line" style="left:586px;bottom:288px;width:244px;transform:rotate(2deg);"></div>
+                <div class="flow-line" style="right:268px;bottom:234px;width:126px;transform:rotate(90deg);"></div>
             </div>
-            <button type="submit" class="btn btn-danger login-btn">登录</button>
-        </form>
-        <div class="demo-account">
-            体验账号：<strong>admin1</strong> / <strong>admin123</strong>
-        </div>
+
+        </section>
+
+        <main class="login-side">
+            <section class="login-card">
+                <h2>欢迎登录</h2>
+                <div class="login-subtitle">请使用您的账号密码登录系统</div>
+                {% if error %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-triangle-exclamation me-2"></i>{{ error }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="关闭"></button>
+                </div>
+                {% endif %}
+                <form method="post">
+                    <div class="mb-4">
+                        <label class="form-label" for="username">账号</label>
+                        <div class="input-wrap">
+                            <i class="far fa-user"></i>
+                            <input type="text" class="form-control" id="username" name="username" required autofocus
+                                placeholder="请输入账号">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="password">密码</label>
+                        <div class="input-wrap">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" class="form-control" id="password" name="password" required
+                                placeholder="请输入密码">
+                        </div>
+                    </div>
+                    <div class="forgot-row">
+                        <label class="d-flex align-items-center gap-2 m-0">
+                            <input type="checkbox" style="width:16px;height:16px;"> 记住我
+                        </label>
+                        <a href="#" tabindex="-1">忘记密码?</a>
+                    </div>
+                    <button type="submit" class="btn btn-success login-btn">登录系统</button>
+                </form>
+                <div class="security-note">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>数据安全 · 严控权限 · 合规运营</span>
+                </div>
+            </section>
+        </main>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
+
+

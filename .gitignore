@@ -1,7 +1,6 @@
 # Local database config
 config.json
 database/target_config.json
-frontend_variant/config.json
 
 # Python local environment/cache
 .venv/
@@ -11,7 +10,7 @@ __pycache__/
 # Local run/test artifacts
 *.log
 output/
-frontend_variant/output/
+~$*
 
 # LaTeX build/check artifacts
 *.aux

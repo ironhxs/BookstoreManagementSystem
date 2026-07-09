@@ -1,191 +1,103 @@
-﻿<!DOCTYPE html>
-<html lang="zh-CN">
+{% extends 'admin_business_base.html' %}
+{% set role_key = 'procurement' %}
+{% set page_title = '新建采购' %}
+{% set page_subtitle = '选择图书、数量和采购价，提交后写入采购订单与明细' %}
+{% set active_nav = '新建采购' %}
+{% set action_label = '订单列表' %}
+{% set action_href = url_for('procurement_orders') %}
+{% set screen_class = 'is-single-page' %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>新建采购订单</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        body {
-            min-height: 100vh;
-            background: url('/pic/background/procurement-premium-bg.png?v=4') no-repeat center center fixed;
-            background-size: cover;
-            position: relative;
-        }
-
-        .bg-mask {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.5);
-            z-index: 0;
-        }
-
-        .main-card {
-            position: relative;
-            z-index: 1;
-            max-width: 900px;
-            margin: 7vh auto;
-            background: rgba(255, 255, 255, 0.88);
-            border-radius: 1rem;
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-            padding: 2.5rem 2rem 2rem 2rem;
-        }
-
-        .main-title {
-            font-weight: bold;
-            color: #198754;
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .table {
-            background: white;
-            border-radius: 0.5rem;
-            overflow: hidden;
-        }
-
-        .btn-success {
-            min-width: 60px;
-        }
-
-        .alert {
-            margin-bottom: 1rem;
-        }
-
-        .back-link {
-            margin-top: 1.5rem;
-        }
-
-        .stock-info {
-            font-size: 0.95em;
-        }
-    </style>
-    <script>
-        function addDetailRow() {
-            const table = document.getElementById('details_table');
-            const row = table.insertRow(-1);
-            row.innerHTML = `
-            <td><select name="book_id" required title="选择图书" onchange="showStock(this)">${window.book_options}</select><span class="stock-info text-info ms-2"></span></td>
-            <td><input type="number" name="quantity" min="1" required title="数量" placeholder="数量"></td>
-            <td><input type="number" name="purchase_price" min="0" step="0.01" required title="采购价" placeholder="采购价"></td>
-            <td><button type="button" class="btn btn-outline-danger btn-sm" onclick="this.parentNode.parentNode.remove()">删除</button></td>
-        `;
-            // 初始化新行的库存显示
-            const select = row.querySelector('select[name="book_id"]');
-            showStock(select);
-            select.addEventListener('change', function () { showStock(this); });
-        }
-    </script>
-</head>
-
-<body>
-    <div class="bg-mask"></div>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-success" style="z-index:1;">
-        <div class="container">
-            <a class="navbar-brand" href="/procurement">
-                <i class="fas fa-user-tie me-2"></i>采购员
-            </a>
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="/procurement">
-                    <i class="fas fa-home me-1"></i>主页
-                </a>
-                <a class="nav-link" href="/logout">
-                    <i class="fas fa-sign-out-alt me-1"></i>退出
-                </a>
-            </div>
-        </div>
-    </nav>
-    <div class="main-card shadow">
-        <h2 class="main-title"><i class="fas fa-plus me-2"></i>新建采购订单</h2>
-        {% if msg %}
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-triangle me-2"></i>{{ msg }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="关闭"></button>
-        </div>
-        {% endif %}
-        <form method="post">
-            <div class="mb-3">
-                <label class="form-label" for="notes">备注</label>
-                <input type="text" class="form-control" name="notes" id="notes" placeholder="可选" title="备注">
-            </div>
-            <div class="mb-3">
-                <label class="form-label" for="purchase_date">进货日期</label>
-                <input type="datetime-local" class="form-control" name="purchase_date" id="purchase_date"
-                    value="{{ request.form.get('purchase_date', '') }}" required>
-            </div>
-            <h4 class="mb-3">订单明细</h4>
-            <div class="table-responsive">
-                <table class="table table-bordered align-middle" id="details_table">
-                    <thead class="table-success">
-                        <tr>
-                            <th>图书</th>
-                            <th>数量</th>
-                            <th>采购价</th>
-                            <th>操作</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>
-                                <select name="book_id" required title="选择图书" onchange="showStock(this)">
-                                    {% for book in books %}
-                                    <option value="{{ book[0] }}" data-stock="{{ book[2] }}">{{ book[0] }} - {{ book[1]
-                                        }}（库存：{{ book[2] }}）</option>
-                                    {% endfor %}
-                                </select>
-                                <span class="stock-info text-info ms-2"></span>
-                            </td>
-                            <td><input type="number" name="quantity" min="1" required title="数量" placeholder="数量"></td>
-                            <td><input type="number" name="purchase_price" min="0" step="0.01" required title="采购价"
-                                    placeholder="采购价"></td>
-                            <td><button type="button" class="btn btn-outline-danger btn-sm"
-                                    onclick="this.parentNode.parentNode.remove()">删除</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <button type="button" class="btn btn-outline-success mb-3" onclick="addDetailRow()"><i
-                    class="fas fa-plus me-1"></i>添加明细</button>
-            <br>
-            <button type="submit" class="btn btn-success">提交订单</button>
-        </form>
-        <div class="text-center back-link mt-3">
-            <a href="{{ url_for('procurement_orders') }}" class="btn btn-outline-success"><i
-                    class="fas fa-arrow-left me-1"></i>返回订单列表</a>
-        </div>
+{% block primary %}
+<section class="admin-panel is-form">
+    <div class="admin-panel-title">
+        <h2>采购单录入</h2>
+        <span>支持多条明细</span>
     </div>
-    <script>
-        // 生成下拉选项HTML字符串，供JS动态插入
-        var bookOptions = `{% for book in books %}<option value='{{ book[0] }}' data-stock='{{ book[2] }}'>{{ book[0] }} - {{ book[1] }}（库存：{{ book[2] }}）</option>{% endfor %}`;
-        document.addEventListener('DOMContentLoaded', function () {
-            window.book_options = bookOptions;
-            // 初始化所有select的库存显示
-            document.querySelectorAll('select[name="book_id"]').forEach(function (sel) {
-                showStock(sel);
-                sel.addEventListener('change', function () { showStock(this); });
-            });
-            // 设置进货日期默认值为当前时间
-            var purchaseDateInput = document.getElementById('purchase_date');
-            if (purchaseDateInput && !purchaseDateInput.value) {
-                var now = new Date();
-                var local = now.toISOString().slice(0, 16);
-                purchaseDateInput.value = local;
-            }
-        });
-        function showStock(selectElem) {
-            var stock = selectElem.options[selectElem.selectedIndex].getAttribute('data-stock');
-            var infoSpan = selectElem.parentNode.querySelector('.stock-info');
-            // if (infoSpan) {
-            //     infoSpan.textContent = '当前库存：' + stock;
-            // }
-        }
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+    {% if msg %}
+    <div class="admin-alert">{{ msg }}</div>
+    {% endif %}
+    <form method="post">
+        <div class="admin-form-grid" style="margin-bottom:12px;">
+            <div class="admin-field"><label>备注</label><input class="admin-input" type="text" name="notes" placeholder="可选"></div>
+            <div class="admin-field"><label>进货日期</label><input class="admin-input" type="datetime-local" name="purchase_date" id="purchase_date" value="{{ request.form.get('purchase_date', '') }}" required></div>
+        </div>
+        <div class="admin-table-wrap">
+            <table class="admin-table is-auto" id="details_table">
+                <thead>
+                    <tr>
+                        <th>图书</th>
+                        <th>数量</th>
+                        <th>采购价</th>
+                        <th class="col-actions">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <select class="admin-select" name="book_id" required>
+                                {% for book in books %}
+                                <option value="{{ book[0] }}" data-stock="{{ book[2] }}">{{ book[0] }} - {{ book[1] }}（库存：{{ book[2] }}）</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td><input class="admin-input" type="number" name="quantity" min="1" required placeholder="数量"></td>
+                        <td><input class="admin-input" type="number" name="purchase_price" min="0" step="0.01" required placeholder="采购价"></td>
+                        <td><button class="admin-btn is-red" type="button" onclick="this.closest('tr').remove()">删除</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="admin-toolbar" style="margin-top:12px;">
+            <button class="admin-btn is-outline" type="button" onclick="addDetailRow()">添加明细</button>
+            <button class="admin-btn" type="submit">提交订单</button>
+        </div>
+    </form>
+</section>
+{% endblock %}
 
-</html>
+{% block side %}
+<section class="admin-panel">
+    <div class="admin-panel-title">
+        <h2>录入规则</h2>
+        <span>采购侧</span>
+    </div>
+    <div class="admin-detail-list">
+        <p><strong>日期</strong>默认填当前时间，可手动修改。</p>
+        <p><strong>明细</strong>至少一条图书明细。</p>
+        <p><strong>库存</strong>采购入库后触发库存增加。</p>
+    </div>
+</section>
+<section class="admin-panel">
+    <div class="admin-panel-title">
+        <h2>跳转</h2>
+        <span>相关页面</span>
+    </div>
+    <div class="admin-mini-grid">
+        <a class="admin-btn is-outline" href="/procurement/orders">订单列表</a>
+        <a class="admin-btn is-outline" href="/procurement/low_quantity_books">库存预警</a>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    var bookOptions = `{% for book in books %}<option value='{{ book[0] }}' data-stock='{{ book[2] }}'>{{ book[0] }} - {{ book[1] }}（库存：{{ book[2] }}）</option>{% endfor %}`;
+    function addDetailRow() {
+        const tbody = document.querySelector('#details_table tbody');
+        const row = tbody.insertRow(-1);
+        row.innerHTML = `
+            <td><select class="admin-select" name="book_id" required>${bookOptions}</select></td>
+            <td><input class="admin-input" type="number" name="quantity" min="1" required placeholder="数量"></td>
+            <td><input class="admin-input" type="number" name="purchase_price" min="0" step="0.01" required placeholder="采购价"></td>
+            <td><button class="admin-btn is-red" type="button" onclick="this.closest('tr').remove()">删除</button></td>
+        `;
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+        const input = document.getElementById('purchase_date');
+        if (input && !input.value) {
+            const now = new Date();
+            input.value = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+        }
+    });
+</script>
+{% endblock %}

@@ -1,140 +1,73 @@
-﻿<!DOCTYPE html>
-<html lang="zh-CN">
+{% extends 'admin_business_base.html' %}
+{% set role_key = 'procurement' %}
+{% set page_title = '采购订单' %}
+{% set page_subtitle = '查看采购订单、进入订单明细，并创建新的补货单' %}
+{% set active_nav = '采购订单' %}
+{% set action_label = '新建订单' %}
+{% set action_href = url_for('procurement_order_new') %}
+{% set screen_class = 'is-single-page' %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>采购订单列表</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        body {
-            min-height: 100vh;
-            background: url('/pic/background/procurement-premium-bg.png?v=4') no-repeat center center fixed;
-            background-size: cover;
-            position: relative;
-        }
-
-        .bg-mask {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.5);
-            z-index: 0;
-        }
-
-        .main-card {
-            position: relative;
-            z-index: 1;
-            max-width: 1100px;
-            margin: 7vh auto;
-            background: rgba(255, 255, 255, 0.88);
-            border-radius: 1rem;
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-            padding: 2.5rem 2rem 2rem 2rem;
-        }
-
-        .main-title {
-            font-weight: bold;
-            color: #198754;
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .table {
-            background: white;
-            border-radius: 0.5rem;
-            overflow: hidden;
-        }
-
-        .btn-success {
-            min-width: 60px;
-        }
-
-        .alert {
-            margin-bottom: 1rem;
-        }
-
-        .back-link {
-            margin-top: 1.5rem;
-        }
-
-        .order-status {
-            font-size: 0.95em;
-        }
-    </style>
-</head>
-
-<body>
-    <div class="bg-mask"></div>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-success" style="z-index:1;">
-        <div class="container">
-            <a class="navbar-brand" href="/procurement">
-                <i class="fas fa-user-tie me-2"></i>采购员
-            </a>
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="/procurement">
-                    <i class="fas fa-home me-1"></i>主页
-                </a>
-                <a class="nav-link" href="/logout">
-                    <i class="fas fa-sign-out-alt me-1"></i>退出
-                </a>
-            </div>
-        </div>
-    </nav>
-    <div class="main-card shadow">
-        <h2 class="main-title"><i class="fas fa-list me-2"></i>采购订单列表</h2>
-        {% if msg %}
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-triangle me-2"></i>{{ msg }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="关闭"></button>
-        </div>
-        {% endif %}
-        <div class="mb-3 text-end">
-            <a href="{{ url_for('procurement_order_new') }}" class="btn btn-success"><i
-                    class="fas fa-plus me-1"></i>新建订单</a>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead class="table-success">
-                    <tr>
-                        <th>订单ID</th>
-                        <th>采购员</th>
-                        <th>创建时间</th>
-                        <th>备注</th>
-                        <th>操作</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if orders %}
-                    {% for order in orders %}
-                    <tr>
-                        <td>{{ order[0] }}</td>
-                        <td>{{ order[1] }}</td>
-                        <td>{{ order[2].strftime('%Y-%m-%d %H:%M') if order[2] else '未知' }}</td>
-                        <td>{{ order[3] or '' }}</td>
-                        <td>
-                            <a href="{{ url_for('procurement_order_detail', order_id=order[0]) }}"
-                                class="btn btn-outline-info btn-sm"><i class="fas fa-eye"></i> 详情</a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    {% else %}
-                    <tr>
-                        <td colspan="5" class="text-center text-muted"><i class="fas fa-check-circle me-2"></i>暂无采购订单
-                        </td>
-                    </tr>
-                    {% endif %}
-                </tbody>
-            </table>
-        </div>
-        <div class="text-center back-link mt-3">
-            <a href="/procurement" class="btn btn-outline-success"><i class="fas fa-arrow-left me-1"></i>返回采购员主页</a>
-        </div>
+{% block primary %}
+<section class="admin-panel is-table">
+    <div class="admin-panel-title">
+        <h2>采购订单列表</h2>
+        <span>{{ orders|length }} 条记录</span>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+    {% if msg %}
+    <div class="admin-alert">{{ msg }}</div>
+    {% endif %}
+    <div class="admin-table-wrap">
+        <table class="admin-table is-auto">
+            <thead>
+                <tr>
+                    <th>订单ID</th>
+                    <th>采购员</th>
+                    <th>创建时间</th>
+                    <th>备注</th>
+                    <th class="col-actions">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if orders %}
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order[0] }}</td>
+                    <td>{{ order[1] }}</td>
+                    <td>{{ order[2].strftime('%Y-%m-%d %H:%M') if order[2] else '未知' }}</td>
+                    <td>{{ order[3] or '' }}</td>
+                    <td><a class="admin-btn is-blue" href="{{ url_for('procurement_order_detail', order_id=order[0]) }}">明细</a></td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr><td colspan="5" class="admin-empty">暂无采购订单</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}
 
-</html>
+{% block side %}
+<section class="admin-panel">
+    <div class="admin-panel-title">
+        <h2>采购操作</h2>
+        <span>补货入口</span>
+    </div>
+    <div class="admin-mini-grid">
+        <a class="admin-btn" href="{{ url_for('procurement_order_new') }}">新建采购</a>
+        <a class="admin-btn is-outline" href="/procurement/publishers">供应商</a>
+        <a class="admin-btn is-outline" href="/procurement/low_quantity_books">库存预警</a>
+        <a class="admin-btn is-outline" href="/procurement">返回首页</a>
+    </div>
+</section>
+<section class="admin-panel">
+    <div class="admin-panel-title">
+        <h2>说明</h2>
+        <span>原功能保留</span>
+    </div>
+    <div class="admin-detail-list">
+        <p><strong>明细</strong>查看每张采购单的图书、数量与采购价。</p>
+        <p><strong>新建</strong>创建后会写入采购主表和采购明细。</p>
+    </div>
+</section>
+{% endblock %}

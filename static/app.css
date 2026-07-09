@@ -1,4 +1,4 @@
-:root {
+﻿:root {
     --ink: #172033;
     --muted: #667085;
     --canvas: #f5f7fb;
@@ -257,14 +257,14 @@ textarea:focus {
     text-align: left !important;
 }
 
-.variant-shell {
+.app-shell {
     display: grid;
     grid-template-columns: 248px minmax(0, 1fr);
     min-height: 100vh;
     background: var(--canvas);
 }
 
-.variant-sidebar {
+.app-sidebar {
     position: sticky;
     top: 0;
     height: 100vh;
@@ -273,14 +273,14 @@ textarea:focus {
     background: linear-gradient(180deg, var(--nav), var(--nav-2));
 }
 
-.variant-brand {
+.app-brand {
     display: flex;
     align-items: center;
     gap: 12px;
     margin-bottom: 30px;
 }
 
-.variant-brand-mark {
+.app-brand-mark {
     display: grid;
     width: 42px;
     height: 42px;
@@ -289,23 +289,23 @@ textarea:focus {
     background: linear-gradient(135deg, var(--teal), var(--teal-2));
 }
 
-.variant-brand strong {
+.app-brand strong {
     display: block;
     font-size: 1rem;
 }
 
-.variant-brand span {
+.app-brand span {
     display: block;
     color: rgba(255, 255, 255, 0.58);
     font-size: 0.78rem;
 }
 
-.variant-nav {
+.app-nav {
     display: grid;
     gap: 8px;
 }
 
-.variant-nav a {
+.app-nav a {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -318,24 +318,24 @@ textarea:focus {
     font-weight: 700;
 }
 
-.variant-nav a:hover,
-.variant-nav a.is-active {
+.app-nav a:hover,
+.app-nav a.is-active {
     color: #fff;
     background: rgba(255, 255, 255, 0.1);
 }
 
-.variant-nav i {
+.app-nav i {
     color: var(--teal-2);
     width: 18px;
     text-align: center;
 }
 
-.variant-content {
+.app-content {
     min-width: 0;
     padding: 28px 34px 40px;
 }
 
-.variant-topbar {
+.app-topbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -343,19 +343,19 @@ textarea:focus {
     margin-bottom: 28px;
 }
 
-.variant-topbar h1 {
+.app-topbar h1 {
     margin: 0;
     color: var(--ink);
     font-size: clamp(1.55rem, 2.4vw, 2.25rem);
     font-weight: 850;
 }
 
-.variant-topbar p {
+.app-topbar p {
     margin: 0.35rem 0 0;
     color: var(--muted);
 }
 
-.variant-userbar {
+.app-userbar {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -365,17 +365,17 @@ textarea:focus {
     border-radius: 9px;
 }
 
-.variant-userbar i {
+.app-userbar i {
     color: var(--teal);
 }
 
-.variant-grid {
+.app-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
     gap: 14px;
 }
 
-.variant-module {
+.app-module {
     display: grid;
     min-height: 148px;
     padding: 18px;
@@ -388,14 +388,14 @@ textarea:focus {
     transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
-.variant-module:hover {
+.app-module:hover {
     color: var(--ink);
     border-color: rgba(15, 118, 110, 0.45);
     box-shadow: 0 16px 36px rgba(15, 23, 42, 0.09);
     transform: translateY(-2px);
 }
 
-.variant-module i {
+.app-module i {
     display: grid;
     width: 40px;
     height: 40px;
@@ -406,46 +406,46 @@ textarea:focus {
     border-radius: 8px;
 }
 
-.variant-module strong {
+.app-module strong {
     font-size: 1.04rem;
     font-weight: 850;
 }
 
-.variant-module span {
+.app-module span {
     color: var(--muted);
     font-size: 0.86rem;
     line-height: 1.45;
 }
 
-.variant-metrics {
+.app-metrics {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 14px;
     margin-bottom: 18px;
 }
 
-.variant-metric {
+.app-metric {
     padding: 16px;
     background: #fff;
     border: 1px solid var(--line);
     border-radius: 10px;
 }
 
-.variant-metric span {
+.app-metric span {
     display: block;
     color: var(--muted);
     font-size: 0.82rem;
     font-weight: 700;
 }
 
-.variant-metric strong {
+.app-metric strong {
     display: block;
     margin-top: 6px;
     color: var(--ink);
     font-size: 1.35rem;
 }
 
-.login-variant {
+.login-layout {
     display: grid !important;
     grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.9fr);
     align-items: stretch !important;
@@ -454,11 +454,11 @@ textarea:focus {
     background: var(--canvas) !important;
 }
 
-.login-variant::before {
+.login-layout::before {
     display: none;
 }
 
-.login-variant .login-card {
+.login-layout .login-card {
     align-self: center;
     justify-self: center;
     width: min(430px, 100%);
@@ -472,30 +472,31 @@ textarea:focus {
 }
 
 @media (max-width: 880px) {
-    .variant-shell {
+    .app-shell {
         display: block;
     }
 
-    .variant-sidebar {
+    .app-sidebar {
         position: relative;
         height: auto;
     }
 
-    .variant-content {
+    .app-content {
         padding: 22px 18px 30px;
     }
 
-    .variant-topbar {
+    .app-topbar {
         align-items: flex-start;
         flex-direction: column;
     }
 
-    .variant-metrics {
+    .app-metrics {
         grid-template-columns: 1fr;
     }
 
-    .login-variant {
+    .login-layout {
         display: flex !important;
         padding: 20px;
     }
 }
+

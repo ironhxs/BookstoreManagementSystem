@@ -1,134 +1,82 @@
-﻿<!DOCTYPE html>
-<html lang="zh-CN">
+{% extends 'admin_business_base.html' %}
+{% set role_key = 'warehouse' %}
+{% set page_title = '库存明细' %}
+{% set page_subtitle = '库存随采购入库与销售出库同步，本页用于仓库盘点修正' %}
+{% set active_nav = '库存明细' %}
+{% set screen_class = 'is-single-page' %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>库存管理</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        body {
-            min-height: 100vh;
-            background: url('/pic/background/warehouse-premium-bg.png?v=4') no-repeat center center fixed;
-            background-size: cover;
-            position: relative;
-        }
+{% block top_action %}
+<button class="admin-action" type="submit" form="inventory-bulk-form" name="action" value="bulk">一键更新</button>
+{% endblock %}
 
-        .bg-mask {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.5);
-            z-index: 0;
-        }
-
-        .main-card {
-            position: relative;
-            z-index: 1;
-            max-width: 1000px;
-            margin: 7vh auto;
-            background: rgba(255, 255, 255, 0.88);
-            border-radius: 1rem;
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-            padding: 2.5rem 2rem 2rem 2rem;
-        }
-
-        .main-title {
-            font-weight: bold;
-            color: #0d6efd;
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .table {
-            background: white;
-            border-radius: 0.5rem;
-            overflow: hidden;
-        }
-
-        .stock-low {
-            color: #dc3545;
-            font-weight: bold;
-        }
-
-        .back-link {
-            margin-top: 1.5rem;
-        }
-
-        .btn-update {
-            white-space: nowrap;
-        }
-    </style>
-</head>
-
-<body>
-    <div class="bg-mask"></div>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary" style="z-index:1;">
-        <div class="container">
-            <a class="navbar-brand" href="/warehouse">
-                <i class="fas fa-warehouse me-2"></i>仓库管理员
-            </a>
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="/warehouse">
-                    <i class="fas fa-home me-1"></i>主页
-                </a>
-                <a class="nav-link" href="/logout">
-                    <i class="fas fa-sign-out-alt me-1"></i>退出
-                </a>
-            </div>
-        </div>
-    </nav>
-    <div class="main-card shadow">
-        <h2 class="main-title"><i class="fas fa-boxes-stacked me-2"></i>库存管理</h2>
-        {% if msg %}
-        <div class="alert alert-info alert-dismissible fade show" role="alert">
-            <i class="fas fa-info-circle me-2"></i>{{ msg }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="关闭"></button>
-        </div>
-        {% endif %}
-        <div class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead class="table-primary">
-                    <tr>
-                        <th>图书ID</th>
-                        <th>书名</th>
-                        <th>库存数量</th>
-                        <th>最后更新时间</th>
-                        <th>操作</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in inventory %}
-                    <tr>
-                        <form method="post">
-                            <td>{{ item[0] }}</td>
-                            <td>{{ item[1] }}</td>
-                            <td>
-                                <input type="number" name="stock_quantity" value="{{ item[2] }}" min="0" required
-                                    title="库存数量" placeholder="库存数量"
-                                    class="form-control {% if item[2] <= 50 %}stock-low{% endif %}"
-                                    style="width:110px;display:inline-block;">
-                            </td>
-                            <td>{{ item[3] }}</td>
-                            <td>
-                                <input type="hidden" name="book_id" value="{{ item[0] }}">
-                                <button type="submit" class="btn btn-outline-primary btn-sm btn-update"><i
-                                        class="fas fa-save me-1"></i>更新</button>
-                            </td>
-                        </form>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        <div class="text-center back-link mt-3">
-            <a href="/warehouse" class="btn btn-outline-primary"><i class="fas fa-arrow-left me-1"></i>返回仓库主页</a>
-        </div>
+{% block primary %}
+<section class="admin-panel is-table">
+    <div class="admin-panel-title">
+        <h2>库存管理</h2>
+        <span>{{ inventory|length }} 条库存记录</span>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+    {% if msg %}
+    <div class="admin-alert">{{ msg }}</div>
+    {% endif %}
+    <form id="inventory-bulk-form" method="post"></form>
+    <div class="admin-table-wrap">
+        <table class="admin-table is-auto">
+            <thead>
+                <tr>
+                    <th>图书ID</th>
+                    <th>书名</th>
+                    <th>库存数量</th>
+                    <th>最后更新时间</th>
+                    <th class="col-actions">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in inventory %}
+                <tr>
+                    <td>
+                        {{ item[0] }}
+                        <input form="inventory-bulk-form" type="hidden" name="book_ids" value="{{ item[0] }}">
+                    </td>
+                    <td>{{ item[1] }}</td>
+                    <td>
+                        <input class="admin-input" form="inventory-bulk-form" type="number"
+                            name="stock_quantity_{{ item[0] }}" value="{{ item[2] }}" min="0" required>
+                    </td>
+                    <td>{{ item[3] }}</td>
+                    <td class="col-actions-cell">
+                        <button class="admin-btn" form="inventory-bulk-form" type="submit"
+                            name="single_book_id" value="{{ item[0] }}">更新</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}
 
-</html>
+{% block side %}
+<section class="admin-panel">
+    <div class="admin-panel-title">
+        <h2>库存规则</h2>
+        <span>自动同步</span>
+    </div>
+    <div class="admin-detail-list">
+        <p><strong>预警</strong>库存小于等于 50 会进入低库存列表。</p>
+        <p><strong>同步</strong>采购入库和销售出库会自动改变库存。</p>
+        <p><strong>盘点</strong>账实不一致时，可单行保存或一键更新当前列表。</p>
+    </div>
+</section>
+<section class="admin-panel">
+    <div class="admin-panel-title">
+        <h2>相关页面</h2>
+        <span>快速进入</span>
+    </div>
+    <div class="admin-mini-grid">
+        <a class="admin-btn is-outline" href="/warehouse/books">图书档案</a>
+        <a class="admin-btn is-outline" href="/warehouse/low_quantity_books">低库存</a>
+        <a class="admin-btn is-outline" href="/warehouse/inventory_stats">库存统计</a>
+        <a class="admin-btn is-outline" href="/warehouse">返回首页</a>
+    </div>
+</section>
+{% endblock %}
