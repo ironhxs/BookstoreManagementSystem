@@ -1,0 +1,61 @@
+{% extends 'admin_business_base.html' %}
+{% set role_key = 'sales' %}
+{% set page_title = '销售订单明细' %}
+{% set page_subtitle = '核对销售单主信息与销售明细' %}
+{% set active_nav = '销售订单' %}
+{% set action_label = '返回订单' %}
+{% set action_href = url_for('sales_orders') %}
+{% set screen_class = 'is-single-page' %}
+
+{% block primary %}
+<section class="admin-panel is-table">
+    <div class="admin-panel-title">
+        <h2>销售明细</h2>
+        <span>{{ details|length }} 条明细</span>
+    </div>
+    <div class="admin-table-wrap">
+        <table class="admin-table is-auto">
+            <thead>
+                <tr>
+                    <th>明细号</th>
+                    <th>图书ID</th>
+                    <th>数量</th>
+                    <th>销售价格</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in details %}
+                <tr>
+                    <td>{{ d[0] }}</td>
+                    <td>{{ d[1] }}</td>
+                    <td>{{ d[2] }}</td>
+                    <td>{{ d[3] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}
+
+{% block side %}
+<section class="admin-panel">
+    <div class="admin-panel-title">
+        <h2>订单信息</h2>
+        <span>主表</span>
+    </div>
+    <div class="admin-detail-list">
+        <p><strong>订单号</strong>{{ order[0] }}</p>
+        <p><strong>客户</strong>{{ order[1] }}</p>
+        <p><strong>日期</strong>{{ order[2] }}</p>
+        <p><strong>备注</strong>{{ order[3] or '无' }}</p>
+    </div>
+</section>
+<section class="admin-panel">
+    <div class="admin-panel-title">
+        <h2>操作</h2>
+        <span>返回</span>
+    </div>
+    <a class="admin-btn" href="{{ url_for('sales_orders') }}">返回订单列表</a>
+</section>
+{% endblock %}

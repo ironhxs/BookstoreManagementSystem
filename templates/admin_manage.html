@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 
 <head>
@@ -10,7 +10,7 @@
     <style>
         body {
             min-height: 100vh;
-            background: url('/pic/background/系统管理员.jpg') no-repeat center center fixed;
+            background: url('/pic/background/admin-premium-bg.png?v=4') no-repeat center center fixed;
             background-size: cover;
             position: relative;
         }
@@ -78,6 +78,16 @@
 
 <body>
     <div class="bg-mask"></div>
+    {% set table_labels = {
+        'publisher': '出版社',
+        'book_category': '图书分类',
+        'book': '图书档案',
+        'inventory': '库存',
+        'purchase_order': '采购订单',
+        'purchase_detail': '采购明细',
+        'sales_order': '销售订单',
+        'sales_detail': '销售明细'
+    } %}
     <nav class="navbar navbar-expand-lg navbar-dark bg-danger" style="z-index:2;">
         <div class="container">
             <a class="navbar-brand" href="/admin">
@@ -106,7 +116,7 @@
                 <label class="form-label" for="table">选择表:</label>
                 <select class="form-select" name="table" id="table" onchange="this.form.submit()" title="选择表">
                     {% for t in table_map.keys() %}
-                    <option value="{{ t }}" {% if t==table %}selected{% endif %}>{{ t }}</option>
+                    <option value="{{ t }}" {% if t==table %}selected{% endif %}>{{ table_labels.get(t, t) }}</option>
                     {% endfor %}
                 </select>
             </div>

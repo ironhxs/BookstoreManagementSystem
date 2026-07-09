@@ -1,0 +1,62 @@
+{% extends 'admin_business_base.html' %}
+{% set role_key = 'admin' if role == '系统管理员' else 'warehouse' if role == '仓库管理员' else 'sales' if role == '销售员' else 'finance' if role == '财务人员' else 'procurement' %}
+{% set page_title = '库存分类统计' %}
+{% set page_subtitle = '按图书分类汇总当前库存总量' %}
+{% set active_nav = '库存统计' %}
+{% set action_label = '返回首页' %}
+{% set action_href = '/admin' if role == '系统管理员' else '/warehouse' if role == '仓库管理员' else '/sales' if role == '销售员' else '/finance' if role == '财务人员' else '/procurement' %}
+{% set screen_class = 'is-single-page' %}
+
+{% block primary %}
+<section class="admin-panel is-table">
+    <div class="admin-panel-title">
+        <h2>分类库存</h2>
+        <span>{{ stats|length }} 类</span>
+    </div>
+    <div class="admin-table-wrap">
+        <table class="admin-table is-auto">
+            <thead>
+                <tr>
+                    <th>分类号</th>
+                    <th>图书分类</th>
+                    <th>库存总量</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat in stats %}
+                <tr>
+                    <td>{{ stat[0] }}</td>
+                    <td>{{ stat[1] }}</td>
+                    <td>{{ stat[2] }}</td>
+                </tr>
+                {% endfor %}
+                <tr>
+                    <td><strong>-</strong></td>
+                    <td><strong>总计</strong></td>
+                    <td><strong>{{ stats | sum(attribute=2) }}</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}
+
+{% block side %}
+<section class="admin-panel">
+    <div class="admin-panel-title">
+        <h2>统计摘要</h2>
+        <span>{{ role }}</span>
+    </div>
+    <div class="admin-mini-grid">
+        <div class="admin-mini"><span>分类数</span><strong>{{ stats|length }}</strong><em>当前分类</em></div>
+        <div class="admin-mini"><span>库存合计</span><strong>{{ stats | sum(attribute=2) }}</strong><em>当前库存</em></div>
+    </div>
+</section>
+<section class="admin-panel">
+    <div class="admin-panel-title">
+        <h2>操作</h2>
+        <span>返回</span>
+    </div>
+    <a class="admin-btn" href="{{ action_href }}">返回{{ role }}首页</a>
+</section>
+{% endblock %}

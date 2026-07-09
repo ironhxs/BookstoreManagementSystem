@@ -1,0 +1,7 @@
+{
+  "database": "BookStoreManagement",
+  "user": "your_gaussdb_user",
+  "password": "your_gaussdb_password",
+  "host": "your.gaussdb.public.ip.or.domain",
+  "port": 8000
+}

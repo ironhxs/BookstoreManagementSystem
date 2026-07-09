@@ -1,0 +1,97 @@
+{% extends 'admin_business_base.html' %}
+{% set role_key = 'finance' %}
+{% set page_title = '采购审核' %}
+{% set page_subtitle = '核对采购订单金额与明细，对采购单执行通过或退回' %}
+{% set active_nav = '采购审核' %}
+{% set action_label = '采购价格' %}
+{% set action_href = url_for('finance_purchase_price') %}
+{% set screen_class = 'is-single-page' %}
+{% set status_labels = {
+    'pending': '待审核',
+    'approved': '已通过',
+    'rejected': '已退回'
+} %}
+{% set status_tones = {
+    'pending': 'is-amber',
+    'approved': '',
+    'rejected': 'is-red'
+} %}
+
+{% block primary %}
+<section class="admin-panel is-table">
+    <div class="admin-panel-title">
+        <h2>采购单审核队列</h2>
+        <span>{{ rows|length }} 条记录</span>
+    </div>
+
+    {% if msg %}
+    <div class="admin-message">{{ msg }}</div>
+    {% endif %}
+
+    <div class="admin-toolbar">
+        <a class="admin-tab {{ 'is-active' if status_filter == 'all' else '' }}"
+            href="{{ url_for('finance_audit', status='all') }}">全部 {{ counts.all }}</a>
+        <a class="admin-tab {{ 'is-active' if status_filter == 'pending' else '' }}"
+            href="{{ url_for('finance_audit', status='pending') }}">待审核 {{ counts.pending }}</a>
+        <a class="admin-tab {{ 'is-active' if status_filter == 'approved' else '' }}"
+            href="{{ url_for('finance_audit', status='approved') }}">已通过 {{ counts.approved }}</a>
+        <a class="admin-tab {{ 'is-active' if status_filter == 'rejected' else '' }}"
+            href="{{ url_for('finance_audit', status='rejected') }}">已退回 {{ counts.rejected }}</a>
+    </div>
+
+    <div class="admin-table-wrap">
+        <table class="admin-table is-audit-table">
+            <thead>
+                <tr>
+                    <th>采购单号</th>
+                    <th>采购员</th>
+                    <th>采购日期</th>
+                    <th>金额</th>
+                    <th>明细数</th>
+                    <th>状态</th>
+                    <th>审核记录</th>
+                    <th class="col-note">审核备注</th>
+                    <th class="col-actions">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                {% set form_id = 'audit-form-' ~ loop.index0 %}
+                <tr>
+                    <td>{{ row.order_id }}</td>
+                    <td>{{ row.purchaser }}</td>
+                    <td>{{ row.purchase_date }}</td>
+                    <td>{{ row.amount }}</td>
+                    <td>{{ row.detail_count }}</td>
+                    <td><span class="admin-tag {{ status_tones.get(row.status, '') }}">{{ status_labels.get(row.status, row.status) }}</span></td>
+                    <td>
+                        {{ row.auditor }} / {{ row.audited_at }}
+                        {% if row.audit_note %}
+                        <br>{{ row.audit_note }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        <input class="admin-input" form="{{ form_id }}" type="text" name="audit_note"
+                            value="{{ row.audit_note }}" placeholder="审核备注">
+                    </td>
+                    <td class="col-actions-cell">
+                        <form id="{{ form_id }}" class="admin-inline-actions" method="post">
+                            <input type="hidden" name="order_id" value="{{ row.order_id }}">
+                            <button class="admin-btn" type="submit" name="action" value="approve">通过</button>
+                            <button class="admin-btn is-red" type="submit" name="action" value="reject">退回</button>
+                            {% if row.status != 'pending' %}
+                            <button class="admin-btn is-outline" type="submit" name="action" value="reset">待审</button>
+                            {% endif %}
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td class="admin-empty" colspan="9">暂无采购单</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

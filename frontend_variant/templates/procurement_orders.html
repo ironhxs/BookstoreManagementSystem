@@ -1,0 +1,73 @@
+{% extends 'admin_business_base.html' %}
+{% set role_key = 'procurement' %}
+{% set page_title = '采购订单' %}
+{% set page_subtitle = '查看采购订单、进入订单明细，并创建新的补货单' %}
+{% set active_nav = '采购订单' %}
+{% set action_label = '新建订单' %}
+{% set action_href = url_for('procurement_order_new') %}
+{% set screen_class = 'is-single-page' %}
+
+{% block primary %}
+<section class="admin-panel is-table">
+    <div class="admin-panel-title">
+        <h2>采购订单列表</h2>
+        <span>{{ orders|length }} 条记录</span>
+    </div>
+    {% if msg %}
+    <div class="admin-alert">{{ msg }}</div>
+    {% endif %}
+    <div class="admin-table-wrap">
+        <table class="admin-table is-auto">
+            <thead>
+                <tr>
+                    <th>订单ID</th>
+                    <th>采购员</th>
+                    <th>创建时间</th>
+                    <th>备注</th>
+                    <th class="col-actions">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if orders %}
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order[0] }}</td>
+                    <td>{{ order[1] }}</td>
+                    <td>{{ order[2].strftime('%Y-%m-%d %H:%M') if order[2] else '未知' }}</td>
+                    <td>{{ order[3] or '' }}</td>
+                    <td><a class="admin-btn is-blue" href="{{ url_for('procurement_order_detail', order_id=order[0]) }}">明细</a></td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr><td colspan="5" class="admin-empty">暂无采购订单</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}
+
+{% block side %}
+<section class="admin-panel">
+    <div class="admin-panel-title">
+        <h2>采购操作</h2>
+        <span>补货入口</span>
+    </div>
+    <div class="admin-mini-grid">
+        <a class="admin-btn" href="{{ url_for('procurement_order_new') }}">新建采购</a>
+        <a class="admin-btn is-outline" href="/procurement/publishers">供应商</a>
+        <a class="admin-btn is-outline" href="/procurement/low_quantity_books">库存预警</a>
+        <a class="admin-btn is-outline" href="/procurement">返回首页</a>
+    </div>
+</section>
+<section class="admin-panel">
+    <div class="admin-panel-title">
+        <h2>说明</h2>
+        <span>原功能保留</span>
+    </div>
+    <div class="admin-detail-list">
+        <p><strong>明细</strong>查看每张采购单的图书、数量与采购价。</p>
+        <p><strong>新建</strong>创建后会写入采购主表和采购明细。</p>
+    </div>
+</section>
+{% endblock %}

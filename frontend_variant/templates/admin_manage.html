@@ -1,0 +1,110 @@
+{% extends 'admin_business_base.html' %}
+{% set page_title = '业务明细' %}
+{% set page_subtitle = '维护出版社、图书、库存、采购订单与销售订单等业务数据' %}
+{% set active_nav = '业务明细' %}
+{% set action_label = '新增记录' %}
+{% set action_href = '#new-row' %}
+{% set screen_class = 'is-business-page' %}
+{% set table_labels = {
+    'publisher': '出版社',
+    'book_category': '图书分类',
+    'book': '图书档案',
+    'inventory': '库存',
+    'purchase_order': '采购订单',
+    'purchase_detail': '采购明细',
+    'sales_order': '销售订单',
+    'sales_detail': '销售明细'
+} %}
+
+{% block primary %}
+<div class="admin-panel is-table is-business-table" id="business-table">
+    <div class="admin-panel-title is-business-title">
+        <div>
+            <h2>业务数据维护</h2>
+            <span>当前对象：{{ table_labels.get(table, table) }}</span>
+        </div>
+        <div class="admin-tabs is-business-tabs">
+            {% for t in table_map.keys() %}
+            <a class="admin-tab {{ 'is-active' if t == table else '' }}" href="{{ url_for('admin_manage', table=t) }}">{{ table_labels.get(t, t) }}</a>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% if msg %}
+    <div class="admin-message">{{ msg }}</div>
+    {% endif %}
+
+    <form method="get" class="admin-searchbar">
+        <select class="admin-select" name="table" id="table" onchange="this.form.submit()" title="选择表">
+            {% for t in table_map.keys() %}
+            <option value="{{ t }}" {% if t == table %}selected{% endif %}>{{ table_labels.get(t, t) }}</option>
+            {% endfor %}
+        </select>
+        <input class="admin-input" type="text" name="search" id="search" value="{{ search }}" placeholder="输入关键字" title="搜索">
+        <button class="admin-btn" type="submit">搜索</button>
+        {% if search %}
+        <a class="admin-btn is-outline" href="{{ url_for('admin_manage', table=table) }}">清除</a>
+        {% endif %}
+    </form>
+
+    <div class="admin-table-wrap">
+        <table class="admin-table is-manage-table">
+            <thead>
+                <tr>
+                    {% for col in columns_zh %}
+                    <th>{{ col }}</th>
+                    {% endfor %}
+                    <th class="col-actions">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr id="new-row">
+                    {% for col in columns %}
+                    <td>
+                        <input class="admin-input" form="add-row" type="text" name="{{ col }}"
+                            placeholder="{{ columns_zh[loop.index0] }}" title="{{ columns_zh[loop.index0] }}">
+                    </td>
+                    {% endfor %}
+                    <td class="col-actions-cell">
+                        <form id="add-row" method="post" action="{{ url_for('admin_manage', table=table, search=search) }}">
+                            <input type="hidden" name="action" value="add">
+                        </form>
+                        <button class="admin-btn" form="add-row" type="submit">添加</button>
+                    </td>
+                </tr>
+
+                {% for row in rows %}
+                {% set edit_form = 'edit-row-' ~ loop.index0 %}
+                {% set delete_form = 'delete-row-' ~ loop.index0 %}
+                <tr>
+                    {% for col in columns %}
+                    <td>
+                        <input class="admin-input" form="{{ edit_form }}" type="text" name="{{ col }}"
+                            value="{{ row[loop.index0] }}" {% if loop.index0 == 0 %}readonly{% endif %}
+                            placeholder="{{ columns_zh[loop.index0] }}" title="{{ row[loop.index0] }}">
+                    </td>
+                    {% endfor %}
+                    <td class="col-actions-cell">
+                        <span class="admin-inline-actions">
+                            <form id="{{ edit_form }}" method="post" action="{{ url_for('admin_manage', table=table, search=search) }}">
+                                <input type="hidden" name="action" value="edit">
+                            </form>
+                            <button class="admin-btn" form="{{ edit_form }}" type="submit">保存</button>
+                            <form id="{{ delete_form }}" method="post" action="{{ url_for('admin_manage', table=table, search=search) }}">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="{{ columns[0] }}" value="{{ row[0] }}">
+                            </form>
+                            <button class="admin-btn is-red" form="{{ delete_form }}" type="submit">删除</button>
+                        </span>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td class="admin-empty" colspan="{{ columns|length + 1 }}">暂无数据</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

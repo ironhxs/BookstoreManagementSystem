@@ -1,2 +1,24 @@
-# 忽略配置文件
+# Local database config
 config.json
+database/target_config.json
+frontend_variant/config.json
+
+# Python local environment/cache
+.venv/
+__pycache__/
+*.pyc
+
+# Local run/test artifacts
+*.log
+output/
+frontend_variant/output/
+
+# LaTeX build/check artifacts
+*.aux
+*.nav
+*.out
+*.snm
+*.toc
+beamer_report_sxhfut/_*/
+beamer_report_sxhfut/_*.txt
+beamer_report_sxhfut/_*.jpg

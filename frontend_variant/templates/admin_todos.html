@@ -1,0 +1,106 @@
+{% extends 'admin_business_base.html' %}
+{% set page_title = '待办总览' %}
+{% set page_subtitle = '汇总采购订单、销售订单与低库存风险的当前数据' %}
+{% set active_nav = '待办总览' %}
+{% set action_label = '查看采购记录' %}
+{% set action_href = '/admin/manage?table=purchase_order' %}
+
+{% block primary %}
+<div class="admin-panel is-table">
+    <div class="admin-panel-title">
+        <h2>业务待看队列</h2>
+        <div class="admin-tabs">
+            <a class="admin-tab is-active" href="/admin/todos">全部</a>
+            <a class="admin-tab" href="/admin/manage?table=purchase_order">采购</a>
+            <a class="admin-tab" href="/admin/manage?table=sales_order">销售</a>
+            <a class="admin-tab" href="/admin/low_quantity_books">库存</a>
+        </div>
+    </div>
+    <div class="admin-table-wrap">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>事项</th>
+                    <th>关联单号</th>
+                    <th>业务对象</th>
+                    <th>日期 / 更新时间</th>
+                    <th class="col-actions">状态</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in todo_rows %}
+                <tr>
+                    <td>{{ item.type }}</td>
+                    <td>{{ item.code }}</td>
+                    <td>{{ item.object }}</td>
+                    <td>{{ item.owner }}</td>
+                    <td><a class="admin-btn {{ item.tone }}" href="{{ item.href }}">{{ item.tag }}</a></td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td class="admin-empty" colspan="5">暂无业务数据</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="admin-panel is-table">
+    <div class="admin-panel-title">
+        <h2>待办来源明细</h2>
+        <span>按来源汇总</span>
+    </div>
+    <div class="admin-table-wrap">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>来源表</th>
+                    <th>当前数量</th>
+                    <th>影响模块</th>
+                    <th>建议动作</th>
+                    <th>优先级</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in source_rows %}
+                <tr>
+                    <td>{{ row[0] }}</td>
+                    <td>{{ row[1] }}</td>
+                    <td>{{ row[2] }}</td>
+                    <td>{{ row[3] }}</td>
+                    <td>{{ row[4] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block side %}
+<div class="admin-panel">
+    <div class="admin-panel-title">
+        <h2>优先级</h2>
+        <span>按业务影响</span>
+    </div>
+    {% for item in priority_rows %}
+    <div class="admin-task">
+        <div><strong>{{ item[0] }}</strong><span>{{ item[1] }}</span></div>
+        <b class="admin-tag {{ item[3] }}">{{ item[2] }}</b>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="admin-panel">
+    <div class="admin-panel-title">
+        <h2>处理进度</h2>
+        <span>今日</span>
+    </div>
+    <div class="admin-mini-grid">
+        {% for item in process_cards %}
+        <div class="admin-mini"><span>{{ item[0] }}</span><strong>{{ item[1] }}</strong><em>{{ item[2] }}</em></div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

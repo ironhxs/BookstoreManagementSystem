@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 
 <head>
@@ -23,10 +23,10 @@
 </head>
 
 {% set background_url = '/pic/background/' + (
-'系统管理员.jpg' if role == '系统管理员'
-else '采购员.jpg' if role == '采购员'
-else '销售员.jpg' if role == '销售员'
-else '图书进销货管理系统.jpg'
+'admin-premium-bg.png?v=4' if role == '系统管理员'
+else 'procurement-premium-bg.png?v=4' if role == '采购员'
+else 'sales-premium-bg.png?v=4' if role == '销售员'
+else 'general-premium-bg.png?v=4'
 ) %}
 
 <body

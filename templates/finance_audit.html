@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 
 <head>
@@ -10,7 +10,7 @@
     <style>
         body {
             min-height: 100vh;
-            background: url('/pic/background/财务人员.jpg') no-repeat center center fixed;
+            background: url('/pic/background/finance-premium-bg.png?v=4') no-repeat center center fixed;
             background-size: cover;
             position: relative;
         }
@@ -62,6 +62,16 @@
 
 <body>
     <div class="bg-mask"></div>
+    {% set table_labels = {
+        'publisher': '出版社',
+        'book_category': '图书分类',
+        'book': '图书档案',
+        'inventory': '库存',
+        'purchase_order': '采购订单',
+        'purchase_detail': '采购明细',
+        'sales_order': '销售订单',
+        'sales_detail': '销售明细'
+    } %}
     <nav class="navbar navbar-expand-lg navbar-dark bg-success" style="z-index:1;">
         <div class="container">
             <a class="navbar-brand" href="/finance">
@@ -84,7 +94,7 @@
             <select name="table" id="table" class="form-select table-select d-inline-block me-2"
                 onchange="this.form.submit()">
                 {% for t in table_map.keys() %}
-                <option value="{{ t }}" {% if t==table %}selected{% endif %}>{{ t }}</option>
+                <option value="{{ t }}" {% if t==table %}selected{% endif %}>{{ table_labels.get(t, t) }}</option>
                 {% endfor %}
             </select>
             <button type="submit" class="btn btn-outline-success">切换</button>

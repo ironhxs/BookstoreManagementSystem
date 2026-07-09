@@ -1,0 +1,65 @@
+{% extends 'admin_business_base.html' %}
+{% set role_key = 'admin' if role == '系统管理员' else 'procurement' if role == '采购员' else 'sales' %}
+{% set page_title = '畅销书排行' %}
+{% set page_subtitle = '按月份汇总图书销量，辅助采购与销售判断' %}
+{% set active_nav = '畅销书' %}
+{% set action_label = '返回首页' %}
+{% set action_href = '/admin' if role == '系统管理员' else '/procurement' if role == '采购员' else '/sales' %}
+{% set screen_class = 'is-single-page' %}
+
+{% block primary %}
+<section class="admin-panel is-table">
+    <div class="admin-panel-title">
+        <h2>畅销书排行</h2>
+        <span>{{ bestsellers|length if bestsellers else 0 }} 条记录</span>
+    </div>
+    <div class="admin-table-wrap">
+        <table class="admin-table is-auto">
+            <thead>
+                <tr>
+                    <th>月份</th>
+                    <th>图书ID</th>
+                    <th>书名</th>
+                    <th>作者</th>
+                    <th>销量</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if bestsellers %}
+                {% for row in bestsellers %}
+                <tr>
+                    <td>{{ row[0] }}</td>
+                    <td>{{ row[1] }}</td>
+                    <td>{{ row[2] }}</td>
+                    <td>{{ row[3] }}</td>
+                    <td><span class="admin-tag">{{ row[4] }}</span></td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr><td colspan="5" class="admin-empty">暂无畅销书数据</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}
+
+{% block side %}
+<section class="admin-panel">
+    <div class="admin-panel-title">
+        <h2>用途</h2>
+        <span>{{ role }}</span>
+    </div>
+    <div class="admin-detail-list">
+        <p>采购员可用排行辅助补货决策。</p>
+        <p>销售员可用排行判断重点推荐图书。</p>
+    </div>
+</section>
+<section class="admin-panel">
+    <div class="admin-panel-title">
+        <h2>操作</h2>
+        <span>返回</span>
+    </div>
+    <a class="admin-btn" href="{{ action_href }}">返回{{ role }}首页</a>
+</section>
+{% endblock %}

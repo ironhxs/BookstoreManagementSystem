@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        :root {
+            --page: #edf2f7;
+            --ink: #142033;
+            --muted: #667085;
+            --line: #d9e3ef;
+            --card: #ffffff;
+            --nav: #0b1422;
+            --nav2: #111f33;
+            --accent: {{ accent }};
+            --accent2: {{ accent2 }};
+            --soft: {{ soft }};
+            --warn: #f59e0b;
+            --shadow: 0 24px 60px rgba(15, 23, 42, 0.13);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            display: grid;
+            place-items: center;
+            color: var(--ink);
+            background:
+                linear-gradient(90deg, rgba(15, 23, 42, 0.035) 1px, transparent 1px),
+                linear-gradient(180deg, rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+                var(--page);
+            background-size: 32px 32px, 32px 32px, auto;
+            font-family: "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
+            letter-spacing: 0;
+            overflow: hidden;
+        }
+
+        .dash-stage {
+            width: 1600px;
+            height: 900px;
+        }
+
+        .dash-screen {
+            display: grid;
+            grid-template-columns: 252px minmax(0, 1fr);
+            width: 1600px;
+            height: 900px;
+            transform-origin: top left;
+            overflow: hidden;
+            background: #fff;
+            border: 1px solid rgba(148, 163, 184, 0.34);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+        }
+
+        .dash-sidebar {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            padding: 22px 18px;
+            color: #fff;
+            background:
+                radial-gradient(circle at 20% 10%, rgba(56, 189, 248, 0.16), transparent 30%),
+                linear-gradient(180deg, var(--nav), var(--nav2));
+        }
+
+        .dash-brand,
+        .dash-role-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .dash-brand {
+            margin-bottom: 22px;
+        }
+
+        .dash-brand-mark {
+            display: grid;
+            width: 44px;
+            height: 44px;
+            place-items: center;
+            color: #fff;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border-radius: 12px;
+            font-size: 20px;
+            font-weight: 900;
+            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .dash-brand-mark img,
+        .dash-role-icon img,
+        .dash-nav-icon,
+        .dash-metric-icon,
+        .dash-task-icon,
+        .dash-audit-summary-icon {
+            display: block;
+            object-fit: contain;
+        }
+
+        .dash-brand-mark img {
+            width: 100%;
+            height: 100%;
+        }
+
+        .dash-brand strong {
+            display: block;
+            font-size: 16px;
+            line-height: 1.15;
+        }
+
+        .dash-brand span,
+        .dash-role-card span {
+            display: block;
+            margin-top: 4px;
+            color: rgba(255, 255, 255, 0.58);
+            font-size: 12px;
+        }
+
+        .dash-role-card {
+            justify-content: space-between;
+            margin-bottom: 18px;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 13px;
+        }
+
+        .dash-role-card strong {
+            display: block;
+            margin-top: 4px;
+            font-size: 16px;
+        }
+
+        .dash-role-icon {
+            display: grid;
+            flex: 0 0 40px;
+            width: 40px;
+            height: 40px;
+            place-items: center;
+            color: #07121f;
+            background: #fff;
+            border-radius: 12px;
+            font-weight: 900;
+        }
+
+        .dash-role-icon img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .dash-nav {
+            display: grid;
+            gap: 8px;
+        }
+
+        .dash-nav a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-height: 40px;
+            padding: 0 12px;
+            color: rgba(255, 255, 255, 0.72);
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 760;
+            text-decoration: none;
+        }
+
+        .dash-nav-icon {
+            flex: 0 0 17px;
+            width: 17px;
+            height: 17px;
+            opacity: 0.84;
+        }
+
+        .dash-nav a.is-active {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .dash-dot {
+            flex: 0 0 8px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            opacity: 0.72;
+        }
+
+        .dash-content {
+            display: grid;
+            grid-template-rows: auto auto minmax(0, 1fr);
+            min-width: 0;
+            min-height: 0;
+            padding: 22px 28px 24px;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at 86% 8%, var(--soft), transparent 30%),
+                linear-gradient(180deg, #fbfdff, #f4f8fc);
+        }
+
+        .dash-content.no-metrics {
+            grid-template-rows: auto minmax(0, 1fr);
+        }
+
+        .dash-topbar {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 22px;
+            margin-bottom: 15px;
+        }
+
+        .dash-topbar h1 {
+            margin: 0;
+            color: #0f172a;
+            font-size: 29px;
+            font-weight: 880;
+            line-height: 1.18;
+        }
+
+        .dash-subtitle {
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .dash-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 0 0 auto;
+        }
+
+        .dash-date-range,
+        .dash-action {
+            display: flex;
+            align-items: center;
+            height: 38px;
+            padding: 0 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 760;
+            white-space: nowrap;
+        }
+
+        .dash-date-range {
+            color: #475569;
+            background: #fff;
+            border: 1px solid var(--line);
+        }
+
+        .dash-action {
+            color: #fff;
+            background: var(--accent);
+            box-shadow: 0 14px 28px rgba(15, 118, 110, 0.2);
+            text-decoration: none;
+        }
+
+        .dash-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .dash-metric {
+            position: relative;
+            min-width: 0;
+            min-height: 91px;
+            padding: 13px 14px;
+            overflow: hidden;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.055);
+        }
+
+        .dash-metric.has-icon {
+            display: grid;
+            grid-template-columns: 68px minmax(0, 1fr);
+            align-items: center;
+            gap: 14px;
+            padding: 13px 16px;
+        }
+
+        .dash-metric::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 68px;
+            height: 68px;
+            background: var(--soft);
+            border-radius: 0 0 0 68px;
+        }
+
+        .dash-metric.has-icon::after {
+            content: none;
+        }
+
+        .dash-metric-icon {
+            position: relative;
+            z-index: 1;
+            width: 62px;
+            height: 62px;
+            filter: drop-shadow(0 10px 16px rgba(15, 23, 42, 0.12));
+        }
+
+        .dash-metric span {
+            position: relative;
+            z-index: 1;
+            display: block;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 760;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .dash-metric strong {
+            position: relative;
+            z-index: 1;
+            display: block;
+            margin-top: 7px;
+            color: #0f172a;
+            font-size: 22px;
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+        .dash-metric em {
+            position: relative;
+            z-index: 1;
+            display: block;
+            margin-top: 8px;
+            color: var(--accent);
+            font-size: 12px;
+            font-style: normal;
+            font-weight: 850;
+            white-space: nowrap;
+        }
+
+        .dash-layout {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 15px;
+            min-height: 0;
+        }
+
+        .dash-main-stack,
+        .dash-side-stack {
+            display: grid;
+            gap: 15px;
+            min-height: 0;
+        }
+
+        .dash-main-stack,
+        .dash-side-stack {
+            grid-template-rows: repeat(2, minmax(0, 1fr));
+        }
+
+        .dash-panel {
+            min-width: 0;
+            min-height: 0;
+            padding: 15px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.055);
+        }
+
+        .dash-panel.is-line-panel {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dash-panel-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .dash-panel-title h2 {
+            margin: 0;
+            color: #0f172a;
+            font-size: 17px;
+            font-weight: 860;
+        }
+
+        .dash-panel-title span {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 760;
+            white-space: nowrap;
+        }
+
+        .dash-chart-bars {
+            display: grid;
+            gap: 11px;
+        }
+
+        .dash-bar-row {
+            display: grid;
+            grid-template-columns: 152px minmax(0, 1fr) 88px;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .dash-bar-label strong {
+            display: block;
+            color: #0f172a;
+            font-size: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .dash-bar-label span {
+            display: block;
+            margin-top: 3px;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .dash-bar-track {
+            height: 10px;
+            overflow: hidden;
+            background: #e7eef6;
+            border-radius: 99px;
+        }
+
+        .dash-bar-fill {
+            width: var(--value);
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            border-radius: inherit;
+        }
+
+        .dash-bar-value {
+            color: #0f172a;
+            text-align: right;
+            font-size: 12px;
+            font-weight: 860;
+            white-space: nowrap;
+        }
+
+        .dash-line-chart {
+            display: grid;
+            grid-template-rows: minmax(0, 1fr) auto;
+            flex: 1;
+            min-height: 0;
+            padding-top: 2px;
+        }
+
+        .dash-line-svg {
+            display: block;
+            width: 100%;
+            height: 100%;
+            min-height: 0;
+        }
+
+        .dash-grid-line,
+        .dash-axis {
+            stroke: #e8eef5;
+            stroke-width: 1;
+        }
+
+        .dash-series-a,
+        .dash-series-b {
+            fill: none;
+            stroke-width: 3.2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .dash-series-a {
+            stroke: var(--accent);
+        }
+
+        .dash-series-b {
+            stroke: var(--warn);
+        }
+
+        .dash-area-a {
+            fill: var(--soft);
+            opacity: 0.35;
+        }
+
+        .dash-point-a,
+        .dash-point-b {
+            fill: #fff;
+            stroke-width: 2.5;
+        }
+
+        .dash-point-a {
+            stroke: var(--accent);
+        }
+
+        .dash-point-b {
+            stroke: var(--warn);
+        }
+
+        .dash-chart-label {
+            fill: #64748b;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .dash-legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 6px;
+            color: #475569;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .dash-legend i {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            margin-right: 6px;
+            border-radius: 50%;
+            background: var(--c);
+        }
+
+        .dash-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .dash-summary-card {
+            display: block;
+            min-height: 87px;
+            padding: 13px;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            text-decoration: none;
+            transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+        }
+
+        a.dash-summary-card:hover {
+            transform: translateY(-1px);
+            border-color: rgba(15, 118, 110, 0.28);
+            box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08);
+        }
+
+        .dash-summary-card span {
+            display: block;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 760;
+        }
+
+        .dash-summary-card strong {
+            display: block;
+            margin-top: 7px;
+            color: #0f172a;
+            font-size: 21px;
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+        .dash-summary-card em {
+            display: block;
+            margin-top: 8px;
+            color: var(--accent);
+            font-size: 12px;
+            font-style: normal;
+            font-weight: 850;
+            white-space: nowrap;
+        }
+
+        .dash-role-matrix {
+            display: grid;
+            gap: 6px;
+        }
+
+        .dash-role-row {
+            display: grid;
+            grid-template-columns: 106px 82px minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 10px;
+            min-height: 36px;
+            padding: 6px 9px;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+        }
+
+        .dash-role-name strong,
+        .dash-role-count,
+        .dash-role-scope {
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .dash-role-name strong {
+            color: #0f172a;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .dash-role-name span {
+            display: block;
+            margin-top: 1px;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 740;
+            white-space: nowrap;
+        }
+
+        .dash-role-count {
+            color: var(--accent);
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .dash-role-scope {
+            color: #334155;
+            font-size: 11px;
+            font-weight: 760;
+        }
+
+        .dash-permission-matrix {
+            display: grid;
+            gap: 6px;
+        }
+
+        .dash-permission-head,
+        .dash-permission-row {
+            display: grid;
+            grid-template-columns: 110px 72px repeat(6, minmax(0, 1fr)) 68px;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .dash-permission-head {
+            padding: 0 8px 2px;
+            color: #64748b;
+            font-size: 10px;
+            font-weight: 850;
+            text-align: center;
+        }
+
+        .dash-permission-head span:first-child,
+        .dash-permission-row .dash-permission-role {
+            text-align: left;
+        }
+
+        .dash-permission-row {
+            min-height: 36px;
+            padding: 6px 8px;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+        }
+
+        .dash-permission-role strong,
+        .dash-permission-role span,
+        .dash-permission-account {
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .dash-permission-role strong {
+            color: #0f172a;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .dash-permission-role span {
+            margin-top: 1px;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 750;
+        }
+
+        .dash-permission-account {
+            color: var(--accent);
+            font-size: 11px;
+            font-weight: 900;
+            text-align: center;
+        }
+
+        .dash-permission-cell {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            justify-self: center;
+            width: 22px;
+            height: 22px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .dash-permission-cell.is-on {
+            color: #fff;
+            background: var(--accent);
+            box-shadow: 0 5px 12px rgba(15, 118, 110, 0.18);
+        }
+
+        .dash-permission-cell.is-off {
+            color: #94a3b8;
+            background: #f1f5f9;
+        }
+
+        .dash-audit {
+            display: grid;
+            gap: 7px;
+        }
+
+        .dash-audit-summary {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0;
+            padding: 12px 13px;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+        }
+
+        .dash-audit-summary-item {
+            display: grid;
+            grid-template-columns: 40px minmax(0, 1fr);
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+            padding: 0 12px;
+            background: transparent;
+            border: 0;
+            border-radius: 0;
+        }
+
+        .dash-audit-summary-icon {
+            width: 38px;
+            height: 38px;
+        }
+
+        .dash-audit-summary-item + .dash-audit-summary-item {
+            border-left: 1px solid #e2e8f0;
+        }
+
+        .dash-audit-summary-item span,
+        .dash-audit-row span {
+            display: block;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 760;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .dash-audit-summary-item strong {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 5px;
+            color: #0f172a;
+            font-size: 13px;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .dash-audit-summary-item strong.is-enabled::before {
+            content: "";
+            width: 7px;
+            height: 7px;
+            border-radius: 999px;
+            background: var(--accent);
+        }
+
+        .dash-audit-section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            color: #0f172a;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .dash-audit-section-title a {
+            color: #2563eb;
+            font-size: 11px;
+            font-weight: 900;
+            text-decoration: none;
+        }
+
+        .dash-audit-timeline {
+            overflow: hidden;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+        }
+
+        .dash-audit-entry {
+            display: grid;
+            grid-template-columns: 108px 22px 70px 70px minmax(0, 1fr) 86px;
+            align-items: center;
+            gap: 7px;
+            min-height: 30px;
+            padding: 0 10px 0 12px;
+            border-bottom: 1px solid #eef3f7;
+        }
+
+        .dash-audit-entry:last-child {
+            border-bottom: 0;
+        }
+
+        .dash-audit-time,
+        .dash-audit-role,
+        .dash-audit-action-text {
+            display: block;
+            min-width: 0;
+            color: #475569;
+            font-size: 10px;
+            font-weight: 760;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .dash-audit-track {
+            position: relative;
+            display: grid;
+            place-items: center;
+            align-self: stretch;
+        }
+
+        .dash-audit-track::before {
+            content: "";
+            position: absolute;
+            top: -1px;
+            bottom: -1px;
+            left: 50%;
+            width: 2px;
+            transform: translateX(-50%);
+            background: rgba(15, 118, 110, 0.34);
+        }
+
+        .dash-audit-track i {
+            position: relative;
+            z-index: 1;
+            width: 8px;
+            height: 8px;
+            background: #fff;
+            border: 2px solid var(--accent);
+            border-radius: 999px;
+        }
+
+        .dash-audit-user {
+            display: block;
+            color: #0f172a;
+            font-size: 11px;
+            font-weight: 900;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .dash-audit-result {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            justify-self: end;
+            gap: 5px;
+            width: 74px;
+            min-height: 20px;
+            color: var(--accent);
+            background: rgba(15, 118, 110, 0.08);
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .dash-audit-result::before {
+            content: "✓";
+            display: inline-grid;
+            width: 13px;
+            height: 13px;
+            place-items: center;
+            color: #fff;
+            background: var(--accent);
+            border-radius: 999px;
+            font-size: 9px;
+            line-height: 1;
+        }
+
+        .dash-audit-result.is-warn {
+            color: #d97706;
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .dash-audit-result.is-warn::before {
+            content: "!";
+            background: #f59e0b;
+        }
+
+        .dash-audit-action-title {
+            margin-top: 1px;
+            color: #0f172a;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .dash-audit-actions {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 7px;
+        }
+
+        .dash-audit-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 29px;
+            gap: 6px;
+            color: var(--accent);
+            background: #fff;
+            border: 1px solid rgba(15, 118, 110, 0.45);
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 900;
+            text-decoration: none;
+        }
+
+        .dash-action-glyph {
+            display: inline-flex;
+            width: 14px;
+            height: 14px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dash-action-glyph svg {
+            width: 14px;
+            height: 14px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .dash-task-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .dash-panel.is-task-panel {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dash-panel.is-task-panel .dash-task-list {
+            flex: 1 1 auto;
+            min-height: 0;
+            grid-auto-rows: minmax(0, 1fr);
+        }
+
+        .dash-task {
+            display: grid;
+            grid-template-columns: 42px minmax(0, 1fr) 48px;
+            gap: 13px;
+            align-items: center;
+            min-height: 0;
+            padding: 13px 14px;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+        }
+
+        .dash-task-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+
+        .dash-task-icon {
+            width: 40px;
+            height: 40px;
+        }
+
+        .dash-task strong {
+            display: block;
+            color: #0f172a;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .dash-task span {
+            display: block;
+            margin-top: 5px;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.35;
+        }
+
+        .dash-task-summary {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: auto;
+            padding-top: 14px;
+            border-top: 1px solid #e8eef5;
+        }
+
+        .dash-task-mini {
+            min-width: 0;
+            padding: 11px 12px;
+            background:
+                linear-gradient(180deg, rgba(15, 118, 110, 0.055), rgba(255, 255, 255, 0.94));
+            border: 1px solid var(--line);
+            border-radius: 13px;
+        }
+
+        .dash-task-mini span {
+            display: block;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 850;
+        }
+
+        .dash-task-mini strong {
+            display: block;
+            margin-top: 5px;
+            color: #0f172a;
+            font-size: 15px;
+            font-weight: 920;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .dash-task-mini em {
+            display: block;
+            margin-top: 6px;
+            color: var(--accent);
+            font-size: 10px;
+            line-height: 1.25;
+            font-style: normal;
+            font-weight: 760;
+        }
+
+        .dash-pill {
+            padding: 6px 9px;
+            color: var(--accent);
+            background: var(--soft);
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .dash-table {
+            width: 100%;
+            table-layout: fixed;
+            border-collapse: collapse;
+            font-size: 10px;
+            line-height: 1.22;
+        }
+
+        .dash-table th,
+        .dash-table td {
+            padding: 4px 7px;
+            text-align: left;
+            border-bottom: 1px solid #e7edf4;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .dash-table th {
+            color: #64748b;
+            background: #f5f8fb;
+            font-weight: 850;
+        }
+
+        .dash-table td {
+            color: #1f2937;
+            font-weight: 650;
+        }
+
+        .dash-status {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 7px;
+            color: var(--accent);
+            background: var(--soft);
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 850;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .dash-status.is-ok {
+            color: var(--accent);
+            background: var(--soft);
+        }
+
+        .dash-status.is-warn {
+            color: #b45309;
+            background: #fff7ed;
+        }
+
+        a.dash-status {
+            cursor: pointer;
+            transition: transform 0.16s ease, background 0.16s ease;
+        }
+
+        a.dash-status:hover {
+            transform: translateY(-1px);
+            background: rgba(15, 118, 110, 0.18);
+        }
+
+        @media (max-width: 1180px) {
+            body {
+                display: block;
+                overflow: auto;
+            }
+
+            .dash-stage {
+                width: auto !important;
+                height: auto !important;
+                max-width: none;
+                max-height: none;
+            }
+
+            .dash-screen {
+                display: block;
+                transform: none !important;
+                width: calc(100vw - 32px);
+                height: auto;
+                min-height: calc(100vh - 32px);
+                margin: 16px;
+            }
+
+            .dash-sidebar {
+                display: none;
+            }
+
+            .dash-content {
+                overflow: visible;
+            }
+
+            .dash-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .dash-main-stack,
+            .dash-side-stack {
+                grid-template-rows: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dash-stage" id="dashStage">
+    <section class="dash-screen" id="dashScreen">
+        <aside class="dash-sidebar">
+            <div class="dash-brand">
+                <div class="dash-brand-mark">
+                    {% if brand_icon is defined %}
+                    <img src="{{ url_for('static', filename='img/' ~ brand_icon) }}" alt="">
+                    {% else %}
+                    书
+                    {% endif %}
+                </div>
+                <div><strong>书店管家</strong><span>书店进销存控制台</span></div>
+            </div>
+            <div class="dash-role-card">
+                <div><span>当前角色</span><strong>{{ role_name }}</strong></div>
+                <div class="dash-role-icon">
+                    {% if role_icon_img is defined %}
+                    <img src="{{ url_for('static', filename='img/' ~ role_icon_img) }}" alt="">
+                    {% else %}
+                    {{ role_icon }}
+                    {% endif %}
+                </div>
+            </div>
+            <nav class="dash-nav">
+                {% set current_nav = active_nav|default(nav_items[0].label) %}
+                {% for item in nav_items %}
+                <a class="{{ 'is-active' if item.label == current_nav else '' }}" href="{{ item.href }}">
+                    {% if item.icon is defined %}
+                    <img class="dash-nav-icon" src="{{ url_for('static', filename='img/' ~ item.icon) }}" alt="">
+                    {% else %}
+                    <i class="dash-dot"></i>
+                    {% endif %}
+                    {{ item.label }}
+                </a>
+                {% endfor %}
+                <a href="/logout"><img class="dash-nav-icon" src="{{ url_for('static', filename='img/generated-icons/nav-logout.png') }}" alt="">退出登录</a>
+            </nav>
+        </aside>
+
+        {% set dashboard_show_metrics = show_metrics|default(true) %}
+        <main class="dash-content {{ 'no-metrics' if not dashboard_show_metrics else '' }}">
+            <header class="dash-topbar">
+                <div>
+                    <h1>{{ title }}</h1>
+                    <div class="dash-subtitle">{{ subtitle }}</div>
+                </div>
+                <div class="dash-toolbar">
+                    <div class="dash-date-range">{{ date_range|default('当前数据库') }}</div>
+                    {% if action_href is defined %}
+                    <a class="dash-action" href="{{ action_href }}">{{ action_label }}</a>
+                    {% else %}
+                    <div class="dash-action">{{ action_label }}</div>
+                    {% endif %}
+                </div>
+            </header>
+
+            {% if dashboard_show_metrics %}
+            <section class="dash-metrics">
+                {% for metric in metrics %}
+                {% set metric_icon = metric[3] if metric|length > 3 else none %}
+                <div class="dash-metric {{ 'has-icon' if metric_icon else '' }}">
+                    {% if metric_icon %}
+                    <img class="dash-metric-icon" src="{{ url_for('static', filename='img/' ~ metric_icon) }}" alt="">
+                    {% endif %}
+                    <div>
+                        <span>{{ metric[0] }}</span>
+                        <strong>{{ metric[1] }}</strong>
+                        <em>{{ metric[2] }}</em>
+                    </div>
+                </div>
+                {% endfor %}
+            </section>
+            {% endif %}
+
+            <section class="dash-layout">
+                <div class="dash-main-stack">
+                    <div class="dash-panel {{ 'is-line-panel' if primary_type == 'line' else '' }}">
+                        <div class="dash-panel-title">
+                            <h2>{{ primary_title }}</h2>
+                            <span>{{ primary_note }}</span>
+                        </div>
+                        {% if primary_type == 'line' %}
+                        {% include '_role_dashboard_line_chart.html' %}
+                        {% elif primary_type == 'permission_matrix' %}
+                        <div class="dash-permission-matrix">
+                            <div class="dash-permission-head">
+                                <span>角色</span>
+                                {% for head in primary_headers %}
+                                <span>{{ head }}</span>
+                                {% endfor %}
+                                <span>状态</span>
+                            </div>
+                            {% for row in primary_items %}
+                            <div class="dash-permission-row">
+                                <div class="dash-permission-role"><strong>{{ row.role }}</strong><span>职责边界</span></div>
+                                <b class="dash-permission-account">{{ row.accounts }}</b>
+                                {% for allowed in row.cells %}
+                                <span class="dash-permission-cell {{ 'is-on' if allowed else 'is-off' }}">{{ '✓' if allowed else '—' }}</span>
+                                {% endfor %}
+                                <span class="dash-status {{ row.tone }}">{{ row.status }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% elif primary_type == 'role_matrix' %}
+                        <div class="dash-role-matrix">
+                            {% for item in primary_items %}
+                            <div class="dash-role-row">
+                                <div class="dash-role-name"><strong>{{ item[0] }}</strong><span>{{ item[2] }}</span></div>
+                                <b class="dash-role-count">{{ item[1] }}</b>
+                                <div class="dash-role-scope">{{ item[3] }}</div>
+                                <span class="dash-status {{ item[5] }}">{{ item[4] }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% elif primary_type == 'cards' %}
+                        <div class="dash-summary-grid">
+                            {% for item in primary_items %}
+                            {% set card_href = item[3] if item|length > 3 else none %}
+                            {% if card_href %}
+                            <a class="dash-summary-card" href="{{ card_href }}"><span>{{ item[0] }}</span><strong>{{ item[1] }}</strong><em>{{ item[2] }}</em></a>
+                            {% else %}
+                            <div class="dash-summary-card"><span>{{ item[0] }}</span><strong>{{ item[1] }}</strong><em>{{ item[2] }}</em></div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="dash-chart-bars">
+                            {% for item in primary_items %}
+                            <div class="dash-bar-row">
+                                <div class="dash-bar-label"><strong>{{ item[0] }}</strong><span>{{ item[1] }}</span></div>
+                                <div class="dash-bar-track"><div class="dash-bar-fill" style="--value: {{ item[2] }}"></div></div>
+                                <div class="dash-bar-value">{{ item[3] }}</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="dash-panel">
+                        <div class="dash-panel-title">
+                            <h2>{{ table_title }}</h2>
+                            <span>可钻取明细</span>
+                        </div>
+                        <table class="dash-table">
+                            <thead>
+                                <tr>
+                                    {% for head in table_head %}
+                                    <th>{{ head }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in table_rows %}
+                                <tr>
+                                    {% for cell in row %}
+                                    <td>
+                                        {% if cell is mapping %}
+                                        {% if cell.href is defined %}
+                                        <a class="dash-status {{ cell.tone|default('') }}" href="{{ cell.href }}">{{ cell.label }}</a>
+                                        {% else %}
+                                        <span class="dash-status {{ cell.tone|default('') }}">{{ cell.label }}</span>
+                                        {% endif %}
+                                        {% elif loop.last %}
+                                        <span class="dash-status">{{ cell }}</span>
+                                        {% else %}
+                                        {{ cell }}
+                                        {% endif %}
+                                    </td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="dash-side-stack">
+                    <div class="dash-panel is-task-panel">
+                        <div class="dash-panel-title">
+                            <h2>{{ tasks_title|default('关键提醒') }}</h2>
+                            <span>{{ tasks_note|default('按优先级') }}</span>
+                        </div>
+                        <div class="dash-task-list">
+                            {% for task in tasks %}
+                            {% set task_tone = task[3] if task|length > 3 else '' %}
+                            {% set task_icon = task[4] if task|length > 4 else none %}
+                            <div class="dash-task">
+                                {% if task_icon %}
+                                <img class="dash-task-icon" src="{{ url_for('static', filename='img/' ~ task_icon) }}" alt="">
+                                {% else %}
+                                <i class="dash-task-dot"></i>
+                                {% endif %}
+                                <div><strong>{{ task[0] }}</strong><span>{{ task[1] }}</span></div>
+                                <b class="dash-pill {{ task_tone }}">{{ task[2] }}</b>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% if task_summary is defined %}
+                        <div class="dash-task-summary">
+                            {% for item in task_summary %}
+                            <div class="dash-task-mini">
+                                <span>{{ item[0] }}</span>
+                                <strong>{{ item[1] }}</strong>
+                                <em>{{ item[2] }}</em>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="dash-panel">
+                        <div class="dash-panel-title">
+                            <h2>{{ secondary_title }}</h2>
+                            <span>{{ secondary_note }}</span>
+                        </div>
+                        {% if secondary_type == 'cards' %}
+                        <div class="dash-summary-grid">
+                            {% for item in secondary_items %}
+                            {% set card_href = item[3] if item|length > 3 else none %}
+                            {% if card_href %}
+                            <a class="dash-summary-card" href="{{ card_href }}"><span>{{ item[0] }}</span><strong>{{ item[1] }}</strong><em>{{ item[2] }}</em></a>
+                            {% else %}
+                            <div class="dash-summary-card"><span>{{ item[0] }}</span><strong>{{ item[1] }}</strong><em>{{ item[2] }}</em></div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                        {% elif secondary_type == 'audit' %}
+                        <div class="dash-audit">
+                            <div class="dash-audit-summary">
+                                {% for item in audit_summary %}
+                                <div class="dash-audit-summary-item">
+                                    {% if item|length > 2 %}
+                                    <img class="dash-audit-summary-icon" src="{{ url_for('static', filename='img/' ~ item[2]) }}" alt="">
+                                    {% endif %}
+                                    <div><span>{{ item[0] }}</span><strong class="{{ 'is-enabled' if item[1] == '已启用' else '' }}">{{ item[1] }}</strong></div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <div class="dash-audit-section-title">
+                                <span>变更审计记录</span>
+                                <a href="{{ audit_all_href|default('/admin/role-permissions') }}">查看全部</a>
+                            </div>
+                            <div class="dash-audit-timeline">
+                                {% for item in audit_rows %}
+                                <div class="dash-audit-entry">
+                                    <span class="dash-audit-time">{{ item[0] }}</span>
+                                    <span class="dash-audit-track"><i></i></span>
+                                    <strong class="dash-audit-user">{{ item[1] }}</strong>
+                                    <span class="dash-audit-role">{{ item[2] }}</span>
+                                    <span class="dash-audit-action-text">{{ item[3] }}</span>
+                                    <span class="dash-audit-result {{ item[5] }}">{{ item[4] }}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <div class="dash-audit-action-title">管理操作</div>
+                            <div class="dash-audit-actions">
+                                {% for action in audit_actions %}
+                                <a class="dash-audit-action" href="{{ action.href }}">
+                                    <span class="dash-action-glyph">
+                                        {% if action.icon == 'add' %}
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 19c0-2.2-2.7-4-6-4s-6 1.8-6 4"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M16 11h6"/></svg>
+                                        {% elif action.icon == 'role' %}
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="8" r="4"/><path d="M2 20c.6-3 3-5 6-5s5.4 2 6 5"/><path d="M17 7c1.8.2 3 1.6 3 3.3S18.8 13.4 17 13.7"/><path d="M16 17c2.3.2 4.1 1.3 5 3"/></svg>
+                                        {% elif action.icon == 'lock' %}
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+                                        {% else %}
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+                                        {% endif %}
+                                    </span>
+                                    {{ action.label }}
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="dash-chart-bars">
+                            {% for item in secondary_items %}
+                            <div class="dash-bar-row">
+                                <div class="dash-bar-label"><strong>{{ item[0] }}</strong><span>{{ item[1] }}</span></div>
+                                <div class="dash-bar-track"><div class="dash-bar-fill" style="--value: {{ item[2] }}"></div></div>
+                                <div class="dash-bar-value">{{ item[3] }}</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+        </main>
+    </section>
+    </div>
+    <script>
+        (function () {
+            var stage = document.getElementById('dashStage');
+            var screen = document.getElementById('dashScreen');
+            var baseWidth = 1600;
+            var baseHeight = 900;
+
+            function fitDashboard() {
+                if (!stage || !screen) {
+                    return;
+                }
+                if (window.innerWidth <= 1180) {
+                    stage.style.width = '';
+                    stage.style.height = '';
+                    screen.style.transform = '';
+                    return;
+                }
+                var availableWidth = Math.max(320, window.innerWidth - 48);
+                var availableHeight = Math.max(240, window.innerHeight - 48);
+                var scale = Math.min(availableWidth / baseWidth, availableHeight / baseHeight);
+                stage.style.width = (baseWidth * scale) + 'px';
+                stage.style.height = (baseHeight * scale) + 'px';
+                screen.style.transform = 'scale(' + scale + ')';
+            }
+
+            window.addEventListener('resize', fitDashboard);
+            fitDashboard();
+        })();
+    </script>
+</body>
+
+</html>

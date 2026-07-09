@@ -1,0 +1,9 @@
+{
+    "db_conn": {
+        "database": "BookStoreManagement",
+        "user": "sys_admin",
+        "password": "Sys123456",
+        "host": "127.0.0.1",
+        "port": 15432
+    }
+}
